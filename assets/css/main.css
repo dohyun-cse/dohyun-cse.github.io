@@ -2953,7 +2953,7 @@
 				.wrapper.style1 input[type="button"]:hover,
 				.wrapper.style1 button:hover,
 				.wrapper.style1 .button:hover {
-					background-color: #ff0000;
+					background-color: #4aa3df;
 				}
 
 				.wrapper.style1 input[type="submit"]:active,
@@ -3111,7 +3111,7 @@
 
 		.wrapper.style2 {
 			background-color: #3498db;
-			color: #aed6f1;
+			color: #d0e2ee;
 		}
 
 			.wrapper.style2 input, .wrapper.style2 select, .wrapper.style2 textarea {
