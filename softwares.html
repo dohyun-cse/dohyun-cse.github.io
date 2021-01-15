@@ -6,7 +6,7 @@
 -->
 <html>
 	<head>
-		<title>Conferences - Dohyun Kim</title>
+		<title>Software - Dohyun Kim</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="stylesheet" href="assets/css/main.css" />
@@ -31,19 +31,77 @@
                 <li><a class="icon solid fa-home" href="index.html"> Home</a></li>
                 <li><a class="icon solid fa-graduation-cap" href="academic.html"> Academic Activities</a></li>
                 <li><a class="icon solid fa-dice-d20" href="polysdg.html"> PolySDG</a></li>
-                <li><a class="icon regular fa-keyboard" href="softwares.html"> Softwares</a></li>
+                <li><a class="icon regular fa-keyboard" href="software.html"> Software</a></li>
             </ul>
         </nav>
 
 		<!-- Main -->
         <div id="main">
 
-            <section class="wrapper">
+            <section class="wrapper style1" id="mesh">
+                <div class="inner">
+                    <h3>Mesh (MATLAB Class) <a class="icon brands fa-github" href="https://github.com/dohyun-cse/Mesh" target="_blank" rel="noopener noreferrer"></a></h3>
+                    <p>
+                        <b>Mesh</b> is a MATLAB class for finite element methods:
+                        <ul>
+                            <li>Supports 1D, 2D, 3D simplices (line, triangle, tetrahedron)</li>
+                            <li>Mesh display function</li>
+                            <li>Automatic facet generation and neighboring information</li>
+                            <li>Automatic generation of Affine information</li>
+                        </ul>
+                    </p>
+                    <button type="button" class="collapsible" id="MeshExample">See Examples</button>
+                    
+                    <div class="content">
+                        <h4>Create an Mesh Object</h4>
+                        <p>You can create a Mesh object by</p>
+                        
+                        <pre><code>mesh = Mesh(v4e, x); <span style="color: green;">% 1D line mesh / v4e: 2 x nrE</span>
+mesh = Mesh(v4e, x, y); <span style="color: green;">% 2D triangular mesh / v4e: 3 x nrE</span>
+mesh = Mesh(v4e, x, y, z); <span style="color: green;">% 3D tetrahedral mesh / v4e: 4 x nrE</span></code></pre>
 
+                        <p>where <code>v4e(:,i)</code> contains vertex index for each element.</p>
+                        
+                        <p>Or, you can get uniform mesh by</p>
+
+                        <pre><code><span style="color: green;">% 1D uniform mesh in (0,1) with 10 elements.</span>
+mesh = line2linemesh(0,1,10);
+<span style="color: green;">% 2D uniform mesh in (0,1)x(0,2) with 10 x 20 (x2) elements.</span>
+mesh = rect2rectmesh(0,1,0,2,10,20);
+<span style="color: green;">% 3D uniform mesh in (0,1)x(0,2)x(0,3) with 10 x 20 x 30 (x6) elements</span>
+mesh = cube2cubemesh(0,1,0,2,0,3,10,20,30);</code></pre>
+                        
+                        <h4>Display Mesh</h4>
+                        <p>To show the mesh, you can use <code>show()</code> method.</p>
+                        
+                        <pre><code>mesh.show(); <span style="color: green;">% default configuration</span>
+mesh.show('FaceColor', 'r'); <span style="color: green;">% change face color</span>
+mesh.show(ax, __); <span style="color: green;">% specify target axes</span></code></pre>
+                        <p>where the optional arguments are from <code>plot</code> for 1D and <code>patch</code> for 2D and 3D</p>
+
+                        <div class="flex flex-3">
+                            <div class="col align-center">
+                                <div class="image fit"><img src="images/mesh_images/figure_0.png" alt="" /></div>
+                                1D Line Mesh
+                            </div>
+                            <div class="col align-center">
+                                <div class="image fit"><img src="images/mesh_images/figure_1.png" alt="" /></div>
+                                2D Triangular Mesh
+                            </div>
+                            <div class="col align-center">
+                                <div class="image fit"><img src="images/mesh_images/figure_4.png" alt="" /></div>
+                                3D Tetrahedral Mesh
+                            </div>
+                        </div>
+
+
+
+                    </div>
+                </div>
             </section>
 
             <!-- Section -->
-            <section class="wrapper style1">
+            <section class="wrapper" id="none">
                 <div class="inner">
                 </div>
             </section>
@@ -69,5 +127,21 @@
         <script src="assets/js/util.js"></script>
         <script src="assets/js/main.js"></script>
 
-	</body>
+    </body>
+<script>
+var coll = document.getElementsByClassName("collapsible");
+var i;
+
+for (i = 0; i < coll.length; i++) {
+  coll[i].addEventListener("click", function() {
+    this.classList.toggle("active");
+    var content = this.nextElementSibling;
+    if (content.style.display === "block") {
+      content.style.display = "none";
+    } else {
+      content.style.display = "block";
+    }
+  });
+}
+</script>
 </html>

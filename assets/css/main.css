@@ -1755,7 +1755,8 @@
 		border-radius: 4px;
 		border: solid 1px;
 		font-family: "Courier New", monospace;
-		font-size: 0.9em;
+        font-size: 0.9em;
+        color: black;
 		margin: 0 0.25em;
 		padding: 0.25em 0.65em;
 	}
@@ -2880,7 +2881,8 @@
 
 	.wrapper {
 		padding: 6em 0 4em 0;
-		position: relative;
+        position: relative;
+        color: #474747;
 	}
 
 		.wrapper .inner {
@@ -2904,7 +2906,7 @@
 
 		.wrapper.style1 {
 			background-color: #fafafa;
-			color: #333333;
+			color: #474747;
 		}
 
 			.wrapper.style1 input, .wrapper.style1 select, .wrapper.style1 textarea {
@@ -2934,10 +2936,10 @@
 				border-left-color: rgba(0, 0, 0, 0.15);
 			}
 
-			.wrapper.style1 code {
+			/* .wrapper.style1 code {
 				background: rgba(0, 0, 0, 0.075);
 				border-color: rgba(0, 0, 0, 0.15);
-			}
+			} */
 
 			.wrapper.style1 hr {
 				border-bottom-color: rgba(0, 0, 0, 0.15);
@@ -3146,10 +3148,10 @@
 				border-left-color: rgba(255, 255, 255, 0.25);
 			}
 
-			.wrapper.style2 code {
+			/* .wrapper.style2 code {
 				background: rgba(255, 255, 255, 0.075);
 				border-color: rgba(255, 255, 255, 0.25);
-			}
+			} */
 
 			.wrapper.style2 hr {
 				border-bottom-color: rgba(255, 255, 255, 0.25);
