@@ -93,9 +93,62 @@ mesh.show(ax, __); <span style="color: green;">% specify target axes</span></cod
                                 3D Tetrahedral Mesh
                             </div>
                         </div>
+                        <h4>Facet Information</h4>
+                        <p>When a Mesh object is created, facet information can be obtained, where</p>
+                        <ul>
+                            <li><code>v4f</code> is the vertex index for each facet</li>
+                            <li><code>x4f</code> is the x-coordinate for each facet (or y, z)</li>
+                            <li><code>nx4f</code> is the facet normal for each facet (or y, z)</li>
+                            <li><code>J4f</code> is the Jacobian for each facet</li>
+                            <li><code>e4f</code> is the neighboring elements' index for each facet</li>
+                            <li><code>ef4f</code> is the neighboring elements' local facet index for each facet</li>
+                            <li><code>fmask</code> and <code>fmask_neg</code> are the local facet vertex index of an element (positive / negative)</li>
+                        </ul>
+                        <p><b>All information about facets can be obtained seperately for interior/boundary facets</br>
+                        by changing <code>f</code> to <code>f0</code> or <code>fb</code>.</b></p>
+                        
+                        <p>If you want to access to the first neighboring element to 10th facet, you can use</p>
+                        <pre><code>mesh.e4f(1,10); <span style="color:green;">% gives the first neighboring element of 10th facet</span>
+mesh.ef4f(1,10); <span style="color:green;">% gives the positive element's which facet is 10th facet.</span></code></pre>
 
+                        <p>In other words,</p>
+                        <pre><code>mesh.v4f(:,10) == mesh.v4e(mesh.fmask(:,mesh.ef4f(1,10)), mesh.e4f(1,10))</code></pre>
+                        <p>Or, for negative element (the second neighboring element)</p>
+                        <pre><code>mesh.v4f(:,10) == mesh.v4e(mesh.fmask_neg(:,mesh.ef4f(2,10)), mesh.e4f(2,10))</code></pre>
+                        <p>Note that <code>e4fb</code> and <code>ef4fb</code> are <code>1 x nrfb</code> vectors
+                        since there is only one neighboring element.</p>
+                        <pre><code>mesh = rect2trimesh(); <span style="color:green;">% get uniform triangular mesh</span>
+figure;
+mesh.show(); <span style="color:green;">% display mesh</span>
+hold on;
+plot(mesh.x4fb, mesh.y4fb, 'r', 'linewidth', 2); <span style="color:green;">% plot boundary edges</span>
+plot(mesh.x4f0, mesh.y4f0, 'b', 'linewidth', 1.5); <span style="color:green;">% plot interior edges</span></code></pre>
+                        
+                        <div class="flex flex-3">
+                            <div class="col align-center">
+                                <div class="image fit"><img src="images/mesh_images/edge_marked.png" alt="" /></div>
+                                2d triangular mesh with boundary edges and interior edges
+                            </div>
+                        </div>
+                        <h4>Affine Information</h4>
+                        <p>In finite element assembly, affine information of physical triangles is often used.</p>
+                        
+                        <p>One can access to the affine information by</p>
+                        
+                        <pre><code><span style="color:green;">% dX/dR</span>
+mesh.xr, mesh.xs, mesh.xm
+mesh.yr, mesh.ys, mesh.ym
+mesh.zr, mesh.zs, mesh.zm
 
+<span style="color:green;">% Jacobial</span>
+mesh.J
 
+<span style="color:green;">% dR/dX</span>
+mesh.rx, mesh.ry, mesh.rz
+mesh.sx, mesh.sy, mesh.sz
+mesh.mx, mesh.my, mesh.mz</code></pre>
+                        <p>Here, each property is <code>1 x nrE</code> vector.</p>
+                        <button href="software.html#mesh" onclick="getElementById('MeshExample').click()">Close Example</button>
                     </div>
                 </div>
             </section>
