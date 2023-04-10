@@ -131,7 +131,7 @@ Here, $a_h(\cdot,\cdot)$ is a bilinear form, and $b_h(\cdot)$ is a linear form s
 
 * Since $V_h$ is finite dimensional and $a_h(\cdot,\cdot)$ is a bilinear form, it is enough to test the equation against basis functions.
    $$
-   \sum_{j=1}^N c_j a_h(\phi_j, \phi_j)=b_h(\phi_i)\quad∀ i∈ 1,\cdots,N.
+   \sum_{j=1}^N c_j a_h(\phi_j, \phi_i)=b_h(\phi_i)\quad∀ i∈ 1,\cdots,N.
    $$
 
 ---
