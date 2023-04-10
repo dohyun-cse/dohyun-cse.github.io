@@ -107,9 +107,9 @@ $$
 
 Here, $a_h(\cdot,\cdot)$ is a bilinear form, and $b_h(\cdot)$ is a linear form so that
 
-* $a_h(u+w,v)=a_h(u,v)+a_h(w,v)$,
-* $a_h(u,v+w)=a_h(u,v)+a_h(u,w)$,
-* $b_h(v+w)= b_h(v)+b_h(w)$.
+* $a_h(u+w,cv)=ca_h(u,v)+ca_h(w,v)$ for all $u,w,v∈ V_h$ and $c\in\mathbb{R}$,
+* $a_h(cu,v+w)=ca_h(u,v)+ca_h(u,w)$ for all $u,v,w∈ V_h$ and $c\in\mathbb{R}$,
+* $b_h(cv+w)= cb_h(v)+b_h(w)$ for all $v,w∈ V_h$ and $c\in\mathbb{R}$.
 
 * Note that $a_h(\cdot,\cdot)=a(\cdot,\cdot),\;b_h(\cdot)=b(\cdot)$ for the most of conforming FEMs.
 * But, $a_h(\cdot,\cdot)≠a(\cdot,\cdot)$ when you consider, e.g., Discontinuous Galerkin method.
@@ -124,9 +124,9 @@ Here, $a_h(\cdot,\cdot)$ is a bilinear form, and $b_h(\cdot)$ is a linear form s
    v=\sum_{j=1}^Nc_j\phi_i
    $$
 
-* Then we can rewrite the equation as
+* Then we can rewrite the equation as: Find $u_h=\sum_{j=1}^Nc_j\phi_j$ or find $\{c_j\}_{j=1}^N$ such that
    $$
-   \sum_{j=1}^N c_j a_h(\phi_j, v)=b_h(v)\quad∀ v∈ V_h.
+   a_h(\sum_{j=1}^Nc_j\phi_j,v)=\sum_{j=1}^N c_j a_h(\phi_j, v)=b_h(v)\quad∀ v∈ V_h.
    $$
 
 * Since $V_h$ is finite dimensional and $a_h(\cdot,\cdot)$ is a bilinear form, it is enough to test the equation against basis functions.
