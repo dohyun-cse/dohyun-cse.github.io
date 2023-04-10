@@ -222,7 +222,7 @@ Here, $a_h(\cdot,\cdot)$ is a bilinear form, and $b_h(\cdot)$ is a linear form s
   * `DG_FECollection/L2_FECollection` - Discontinuous $P_k/Q_k$ space
   * `RT_FECollection` - $H(div)$-conforming Raviart-Thomas space
   * `ND_FECollection` - $H(curl)$-conforming Nedelec space
-  * see, [FiniteElementCollection](https://docs.mfem.org/html/classmfem_1_1FiniteElementCollection.html) for exhaustive list.
+  * see, <a href="https://docs.mfem.org/html/classmfem_1_1FiniteElementCollection.html" target="_blank">FiniteElementCollection</a> for exhaustive list.
 
 * Code Example:
    Discontinuous Bernstien finite element space
@@ -250,7 +250,7 @@ Here, $a_h(\cdot,\cdot)$ is a bilinear form, and $b_h(\cdot)$ is a linear form s
    mesh.Save("path/to/meshfile.mesh");
    ```
 * It supports nonconforming and/or curved meshes.
-* The mesh file can be created 1) manually, 2) Gmsh, and so on. See, this [guide](https://mfem.org/mesh-formats/).
+* The mesh file can be created 1) manually, 2) Gmsh, and so on. See, this <a href="https://mfem.org/mesh-formats/" target="_blank">guide</a>.
 
 ---
 # Mesh - continued I
@@ -439,7 +439,7 @@ GridFunction u(&fespace);
 * This class should contains:
   * `AssembleElementMatrix`: if it is an element integrator, $(\cdot,\cdot)_T$
   * `AssembleFaceMatrix`: if it is a face integrator, $(\cdot,\cdot)_F$
-  * ... see, `bilininteg.hpp`
+  * ... see, <a href="https://docs.mfem.org/html/bilininteg_8hpp_source.html" target="_blank">`fem/bilininteg.hpp`</a>
 * Examples are:
   * `MassIntegrator`: $(u, v)_T$
   * `DiffusionIntegrator`: $(∇ u, ∇ v)_T$
@@ -662,3 +662,5 @@ void MassIntegrator::AssembleElementMatrix
 
 # **Questions**
 ![w:600px](images/summary.png)
+
+https://dohyun-cse.github.io/mfem-tutorial
