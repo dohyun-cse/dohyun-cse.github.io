@@ -437,13 +437,13 @@ GridFunction u(&fespace);
   $$
 * The local bilinear form $(∇ u, ∇ v)_T$ is called `BilinearFormIntegrator`.
 * This class should contains:
-  * `AssembleElementMatrix`: if it is element integrator, $(\cdot,\cdot)_T$
-  * `AssembleFaceMatrix`: if it is face integrator, $(\cdot,\cdot)_F$
+  * `AssembleElementMatrix`: if it is an element integrator, $(\cdot,\cdot)_T$
+  * `AssembleFaceMatrix`: if it is a face integrator, $(\cdot,\cdot)_F$
   * ... see, `bilininteg.hpp`
 * Examples are:
   * `MassIntegrator`: $(u, v)_T$
-  * `DiffusionIntegrator`: $(∇ u, ∇ v)$
-  * `MixedVectorDivergenceIntegrator`: $(∇ ⋅ u, v)$
+  * `DiffusionIntegrator`: $(∇ u, ∇ v)_T$
+  * `MixedVectorDivergenceIntegrator`: $(∇ ⋅ u, v)_T$
   * `TransposeIntegrator`: convert $(f(u), g(v))$ to $(f(v), g(u))$
 
 ---
@@ -452,8 +452,8 @@ GridFunction u(&fespace);
 * You can add `BilinearFormIntegrator` to `BilinearForm`
    ```cpp
    BilinearForm a_h(&fespace);
-   a_h.AddDomainIntegrator(new DiffusionIntegrator); // a_h = ∑_T(∇ u, ∇ v)
-   a_h.AddDomainIntegrator(new MassIntegrator); // a_h = ∑_T [ (∇ u, ∇ v) + (u, v) ]
+   a_h.AddDomainIntegrator(new DiffusionIntegrator); // a_h = ∑_T(∇ u, ∇ v)_T
+   a_h.AddDomainIntegrator(new MassIntegrator); // a_h = ∑_T [ (∇ u, ∇ v)_T + (u, v)_T ]
    a_h.AddInteriorFaceIntegrator(new SomeFaceIntegrator); // a_h = ... + ∑_{F_i}(⋅⋅⋅, ⋅⋅⋅)_F
    a_h.AddBoundaryIntegrator(new SomeFaceIntegrator); // a_h = ... + ∑_{F_b}(⋅⋅⋅, ⋅⋅⋅)_F
    ```
@@ -462,7 +462,7 @@ GridFunction u(&fespace);
    ```cpp
    LinearForm b_h(&fespace);
    b_h.AddDomainIntegrator(new DomainLFIntegrator(f)); // b_h = ∑_T (f, v)
-   b_h.AddBoundaryIntegrator(new BoundaryLFIntegrator(g)); // b_h = ... + (g_N, v)
+   b_h.AddBoundaryIntegrator(new BoundaryLFIntegrator(g, nbc_bdr)); // b_h = ... + ∑_{F_{b,N}}(g_N, v)_F
    ```
 
 ---
@@ -500,7 +500,7 @@ void MassIntegrator::AssembleElementMatrix
       // Why? DIY
       AddMult_a_VVt(w, shape, elmat);
    }
-}
+} // Also see, DiffusionIntegrator, MixedVectorDivergenceOperator, ...
 ```
 
 ---
@@ -580,11 +580,7 @@ void MassIntegrator::AssembleElementMatrix
    // stores all degrees of freedom on the Dirichlet Boundary
    Array<int> ess_tdof_list;
    fespace.GetEssentialTrueDofs(ess_bdr, ess_tdof_list);
-   // In this case, ess_tdof_list is of size
-   // (order + 1) * 2 - 1
    ```
-* This will be used when we remove dofs related to essential boundaries in the final linear system.
-
 ---
 
 # FormLinearSystem
