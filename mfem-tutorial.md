@@ -146,11 +146,11 @@ Here, $a_h(\cdot,\cdot)$ is a bilinear form, and $b_h(\cdot)$ is a linear form s
 
 * This can be rewritten as
    $$
-   Au=b
+   Ax=b
    $$
    where 
    $$
-   A_{ij} = a_h(\phi_j, \phi_i), u_i = c_i, b_i = b_h(\phi_i)
+   A_{ij} = a_h(\phi_j, \phi_i), x_i = c_i, b_i = b_h(\phi_i)
    $$
 
 
@@ -167,11 +167,11 @@ Here, $a_h(\cdot,\cdot)$ is a bilinear form, and $b_h(\cdot)$ is a linear form s
 * Using the basis representation, we obtain a corresponding linear system
 
    $$
-   Au = b
+   Ax = b
    $$
    where
    $$
-   A_{ij} = a_h(\phi_j,\phi_i),\ u_i = c_i,\ b_i = b_h(\phi_i)
+   A_{ij} = a_h(\phi_j,\phi_i),\ x_i = c_i,\ b_i = b_h(\phi_i)
    $$
 
 ---
