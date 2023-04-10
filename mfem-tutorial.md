@@ -111,6 +111,9 @@ Here, $a_h(\cdot,\cdot)$ is a bilinear form, and $b_h(\cdot)$ is a linear form s
 * $a_h(u,v+w)=a_h(u,v)+a_h(u,w)$,
 * $b_h(v+w)= b_h(v)+b_h(w)$.
 
+* Note that $a_h(\cdot,\cdot)=a(\cdot,\cdot),\;b_h(\cdot)=b(\cdot)$ for the most of conforming FEMs.
+* But, $a_h(\cdot,\cdot)≠a(\cdot,\cdot)$ when you consider, e.g., Discontinuous Galerkin method.
+
 ---
 
 # Basis of $V_h$
@@ -158,7 +161,7 @@ Here, $a_h(\cdot,\cdot)$ is a bilinear form, and $b_h(\cdot)$ is a linear form s
 * For given finite element space $V_h$ with $dim(V_h)=N$, we find solution $u_h ∈ V_h$ by
 
    $$
-   a_h(u_h,v):=\sum_{T∈\mathcal{T}_h}(∇ u_h, v_h)_T=\sum_{T\in\mathcal{T}_h}(f,v)=:b_h(v)\quad∀ v∈ V_h
+   a_h(u_h,v):=\sum_{T∈\mathcal{T}_h}(∇ u_h, v)_T=\sum_{T\in\mathcal{T}_h}(f,v)=:b_h(v)\quad∀ v∈ V_h
    $$
 
 * Using the basis representation, we obtain a corresponding linear system
@@ -214,7 +217,7 @@ Here, $a_h(\cdot,\cdot)$ is a bilinear form, and $b_h(\cdot)$ is a linear form s
 
 * We use `FiniteElementCollection` to represent a local finite element space.
 
-* Examples are
+* Examples are: ($P_k$: Complete polynomial, $Q_k$: Tensor product polynomial)
   * `H1_FECollection` - Continuous $P_k/Q_k$ space
   * `DG_FECollection/L2_FECollection` - Discontinuous $P_k/Q_k$ space
   * `RT_FECollection` - $H(div)$-conforming Raviart-Thomas space
