@@ -788,20 +788,20 @@ https://dohyun-cse.github.io/mfem-tutorial
   ```bash
   brew install patchelf
   git clone git@github.com:mfem/pymfem.git
-  git checkout rpath-patch
   cd pymfem
-  python setup.py install ...
+  git checkout rpath-patch
+  python setup.py install
   ```
 - `PyMFEM` needs `swig`
   ```bash
   brew install swig
-  python -m pip install swig
-  python -m pip install mfem
+  python -m pip install swig numpy scipy cmake
   python setup.py install
   ```
 - `PyMFEM` with parallel
   ```bash
   brew install open-mpi
-  python -m pip install mpi4py
+  brew install swig
+  python -m pip install mpi4py swig numpy scipy cmake
   python setup.py install --with-parallel
   ```

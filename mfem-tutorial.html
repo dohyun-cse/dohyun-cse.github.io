@@ -530,19 +530,19 @@ b_h.<span class="hljs-built_in">AddDomainIntegrator</span>(<span class="hljs-key
 <ul>
 <li>Mac OS need a patch and <code>patchelf</code><pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-bash">brew install patchelf
 git <span class="hljs-built_in">clone</span> git@github.com:mfem/pymfem.git
-git checkout rpath-patch
 <span class="hljs-built_in">cd</span> pymfem
-python setup.py install ...
+git checkout rpath-patch
+python setup.py install
 </code></pre>
 </li>
 <li><code>PyMFEM</code> needs <code>swig</code><pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-bash">brew install swig
-python -m pip install swig
-python -m pip install mfem
+python -m pip install swig numpy scipy cmake
 python setup.py install
 </code></pre>
 </li>
 <li><code>PyMFEM</code> with parallel<pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-bash">brew install open-mpi
-python -m pip install mpi4py
+brew install swig
+python -m pip install mpi4py swig numpy scipy cmake
 python setup.py install --with-parallel
 </code></pre>
 </li>
