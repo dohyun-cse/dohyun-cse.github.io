@@ -8,39 +8,26 @@
     <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
     <style>
         div#primary {
-            object-fit:contain;
             }
         body {
             background-color: #000;
-            object-fit:contain;
             color: #000;
+            width:100%;
+            height:100%;
+            overflow: hidden;
         }
         .swiper {
             color: #000;
+            background-color:#000;
+            max-width:100vw;
+            max-height:100vh;
             object-fit:contain;
             aspect-ratio: 2/3;
         }
-        button {
-            line-height: 12px;
-            width: 18px;
-            background-color:transparent;
-            border: none;
-            outline: none;
-            color: #000;
-            opacity:0.8;
-            font-size: 40px;
-            font-family: tahoma;
-            margin-top: 15px;
-            margin-right: 23px;
-            z-index: 80;
-            position:absolute;
-            top:0;
-            right:0;
-        }
         .swiper-slide {
             text-align: center;
-            font-size: 18px;
-            background: #fff;
+            font-size: 24px;
+            background: #000;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -53,34 +40,28 @@
             object-fit: contain;
             background-color: #000;
         }
-        .swiper-button-next, .swiper-button-prev {
-            color: #222;
-        }
         .swiper-pagination-bullet-active {
-            background-color: #000;
+            background-color: #AAA;
         }
         .swiper-pagination-bullet-inactive {
-            background-color: #666;
+            background-color: #999;
         }
     </style>
 </head>
 <body>
 <div class="swiper mySwiper">
-    <button onclick="goBack()" id="button">&#x2715;</button>
     <div class="swiper-wrapper">
-        <div class="swiper-slide"><img src="selected-photos/1.jpg"></div>
-        <div class="swiper-slide"><img src="selected-photos/2.jpg"></div>
-        <div class="swiper-slide"><img src="selected-photos/3.jpg"></div>
-        <div class="swiper-slide"><img src="selected-photos/4.jpg"></div>
-        <div class="swiper-slide"><img src="selected-photos/5.jpg"></div>
-        <div class="swiper-slide"><img src="selected-photos/6.jpg"></div>
-        <div class="swiper-slide"><img src="selected-photos/7.jpg"></div>
-        <div class="swiper-slide"><img src="selected-photos/8.jpg"></div>
-        <div class="swiper-slide"><img src="selected-photos/9.jpg"></div>
-        <div class="swiper-slide"><img src="selected-photos/10.jpg"></div>
+        <div class="swiper-slide"><a onclick="goBack()"><img src="selected-photos/1.jpg"></a></div>
+        <div class="swiper-slide"><a onclick="goBack()"><img src="selected-photos/2.jpg"></a></div>
+        <div class="swiper-slide"><a onclick="goBack()"><img src="selected-photos/3.jpg"></a></div>
+        <div class="swiper-slide"><a onclick="goBack()"><img src="selected-photos/4.jpg"></a></div>
+        <div class="swiper-slide"><a onclick="goBack()"><img src="selected-photos/5.jpg"></a></div>
+        <div class="swiper-slide"><a onclick="goBack()"><img src="selected-photos/6.jpg"></a></div>
+        <div class="swiper-slide"><a onclick="goBack()"><img src="selected-photos/7.jpg"></a></div>
+        <div class="swiper-slide"><a onclick="goBack()"><img src="selected-photos/8.jpg"></a></div>
+        <div class="swiper-slide"><a onclick="goBack()"><img src="selected-photos/9.jpg"></a></div>
+        <div class="swiper-slide"><a onclick="goBack()"><img src="selected-photos/10.jpg"></a></div>
     </div>
-    <div class="swiper-button-next"></div>
-    <div class="swiper-button-prev"></div>
     <div class="swiper-pagination"></div>
 
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
@@ -89,10 +70,6 @@
             slidesPerView: 1,
             spaceBetween: 10,
             loop: true,
-            navigation: {
-                nextEl: '.swiper-button-next',
-                prevEl: '.swiper-button-prev',
-            },
             pagination: {
                 el: '.swiper-pagination',
                 clickable: true,
