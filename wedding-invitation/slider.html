@@ -46,9 +46,54 @@
         .swiper-pagination-bullet-inactive {
             background-color: #999;
         }
+
+        #snackbar {
+            visibility: hidden;
+            min-width: 250px;
+            margin-left: -125px;
+            background-color: #000;
+            color: #fff;
+            text-align: center;
+            border-radius: 2px;
+            padding: 16px;
+            position: fixed;
+            opacity: 0.8;
+            z-index: 1000;
+            left: 50%;
+            bottom: 50%;
+            font-size: 17px;
+          }
+          
+          #snackbar.show {
+            visibility: visible;
+            -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+          }
+          
+          @-webkit-keyframes fadein {
+            from {bottom: 45%; opacity: 0;} 
+            to {bottom: 50%; opacity: 0.8;}
+          }
+          
+          @keyframes fadein {
+            from {bottom: 45%; opacity: 0;}
+            to {bottom: 50%; opacity: 0.8;}
+          }
+          
+          @-webkit-keyframes fadeout {
+            from {bottom: 50%; opacity: 0.8;} 
+            to {bottom: 45%; opacity: 0;}
+          }
+          
+          @keyframes fadeout {
+            from {bottom: 50%; opacity: 1;}
+            to {bottom: 45%; opacity: 0;}
+          } 
+            
     </style>
 </head>
-<body>
+<body onload="myFunction()">
+    <div id="snackbar">좌우로 스와이프 해보세요<br>탭하면 닫힙니다</div>
 <div class="swiper mySwiper">
     <div class="swiper-wrapper">
         <div class="swiper-slide"><a onclick="goBack()"><img src="selected-photos/1.jpg"></a></div>
@@ -63,6 +108,14 @@
         <div class="swiper-slide"><a onclick="goBack()"><img src="selected-photos/10.jpg"></a></div>
     </div>
     <div class="swiper-pagination"></div>
+
+    <script>
+    window.onload=function() {
+      var x = document.getElementById("snackbar");
+      x.className = "show";
+      setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+    }
+    </script>
 
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
     <script>
@@ -81,6 +134,12 @@
             window.history.go(-1);
         }
     </script>
+        <script type = "text/javascript">
+            function myFunction(){setTimeout(showPopup,4000)};
+            function showPopup()
+            {
+            }
+            </script>
 </div>
 </body>
 </html>
