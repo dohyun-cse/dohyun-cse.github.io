@@ -987,7 +987,7 @@ form label {
 .simply-countdown > .simply-section {
   /* coutndown blocks */
   display: inline-block;
-  width: 70px;
+  width: 60px;
   height: 90px;
   background: rgba(136,176,75, 0.8);
   margin: 0 4px;
