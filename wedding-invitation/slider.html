@@ -20,7 +20,23 @@
             object-fit:contain;
             aspect-ratio: 2/3;
         }
-
+        button {
+            line-height: 12px;
+            width: 18px;
+            background-color:transparent;
+            border: none;
+            outline: none;
+            color: #000;
+            opacity:0.8;
+            font-size: 40px;
+            font-family: tahoma;
+            margin-top: 15px;
+            margin-right: 23px;
+            z-index: 80;
+            position:absolute;
+            top:0;
+            right:0;
+        }
         .swiper-slide {
             text-align: center;
             font-size: 18px;
@@ -50,6 +66,7 @@
 </head>
 <body>
 <div class="swiper mySwiper">
+    <button onclick="goBack()" id="button">&#x2715;</button>
     <div class="swiper-wrapper">
         <div class="swiper-slide"><img src="selected-photos/1.jpg"></div>
         <div class="swiper-slide"><img src="selected-photos/2.jpg"></div>
@@ -81,6 +98,11 @@
                 clickable: true,
             },
         });
+    </script>
+    <script>
+        function goBack() {
+            window.history.go(-1);
+        }
     </script>
 </div>
 </body>
