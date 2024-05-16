@@ -153,14 +153,7 @@
             seconds,
             cd = document.querySelectorAll(elt);
 
-        targetTmpDate = new Date(
-            parameters.year,
-            parameters.month - 1,
-            parameters.day,
-            parameters.hours,
-            parameters.minutes,
-            parameters.seconds
-        );
+        targetTmpDate = new Date('July 20, 2024 14:00:00 GMT+09:00');
 
         if (parameters.enableUtc) {
             targetDate = new Date(
