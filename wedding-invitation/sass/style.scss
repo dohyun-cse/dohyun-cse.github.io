@@ -1,5 +1,6 @@
-$font-primary: 'Work Sans', Arial, sans-serif;
-$font-secondary: 'Sacramento', Arial, serif;
+$font-title: "sim", cursive;
+$font-subtitle: "iconmoon", cursive;
+$font-body: "iconmoon", cursive;
 
 
 // Overrides
@@ -107,7 +108,7 @@ $form-group-margin-bottom:       30px !default;
 * ======================================================= */
 
 body {
-	font-family: $font-primary;
+	font-family: $font-title;
 	font-weight: 400;
 	font-size: 16px;
 	line-height: 1.7;
@@ -152,7 +153,7 @@ p {
 
 h1, h2, h3, h4, h5, h6, figure {
 	color: $brand-black;
-	font-family: $font-primary;
+	font-family: $font-title;
 	font-weight: 400;
 	margin: 0 0 20px 0;
 }
@@ -186,7 +187,7 @@ h1, h2, h3, h4, h5, h6, figure {
 		margin: 0;
 		padding: 0;
 		line-height: 40px;
-		font-family: $font-secondary;
+		font-family: $font-subtitle;
 	}
 	a {
 		padding: 5px 10px;
@@ -876,7 +877,7 @@ form {
 			margin-bottom: 0px;
 			font-size: 100px;
 			line-height: 1.5;
-			font-family: $font-secondary;
+			font-family: $font-title;
 			@media screen and (max-width: $screen-sm) {
 				font-size: 40px;
 			}
@@ -1056,7 +1057,7 @@ form {
 		width: 100%;
 	}
 	h3{
-		font-family: $font-secondary;
+		font-family: $font-subtitle;
 		color: $brand-primary;
 		font-size: 30px;
 	}
@@ -1166,7 +1167,7 @@ form {
 		line-height: 1.5;
 		font-weight: bold;
 		color: $brand-primary;
-		font-family: $font-secondary;
+		font-family: $font-subtitle;
 		@media screen and (max-width: $screen-sm){
 			font-size: 40px;
 		}
@@ -1631,7 +1632,7 @@ form {
 .btn {
 	margin-right: 4px;
 	margin-bottom: 4px;
-	font-family: $font-primary;
+	font-family: $font-title;
 	font-size: 16px;
 	font-weight: 400;
 	@include border-radius(30px);

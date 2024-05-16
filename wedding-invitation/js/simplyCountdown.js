@@ -164,12 +164,12 @@
 
         if (parameters.enableUtc) {
             targetDate = new Date(
-                targetTmpDate.getUTCFullYear(),
-                targetTmpDate.getUTCMonth(),
-                targetTmpDate.getUTCDate(),
-                targetTmpDate.getUTCHours(),
-                targetTmpDate.getUTCMinutes(),
-                targetTmpDate.getUTCSeconds()
+                targetTmpDate.getFullYear(),
+                targetTmpDate.getMonth(),
+                targetTmpDate.getDate(),
+                targetTmpDate.getHours(),
+                targetTmpDate.getMinutes(),
+                targetTmpDate.getSeconds()
             );
         } else {
             targetDate = targetTmpDate;
