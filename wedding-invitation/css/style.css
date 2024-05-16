@@ -685,7 +685,7 @@ h1, h2, h3, h4, h5, h6, figure {
   display: -webkit-flex;
   display: flex;
   position: relative;
-  float: left;
+  float: center;
   padding: 0;
   margin: 0;
   width: 100%;
@@ -693,14 +693,16 @@ h1, h2, h3, h4, h5, h6, figure {
 #fh5co-gallery-list li {
   display: block;
   padding: 0;
-  margin: 0 0 10px 1%;
+  margin: 0 10px 10px 1%;
   list-style: none;
-  min-height: 400px;
+  /* min-height: 400px; */
   background-position: center center;
   background-size: cover;
   background-repeat: no-repeat;
-  float: left;
-  clear: left;
+  align-content:center;
+  justify-content: center;
+  float: center;
+  clear: center;
   position: relative;
   -webkit-border-radius: 7px;
   -moz-border-radius: 7px;
@@ -710,10 +712,11 @@ h1, h2, h3, h4, h5, h6, figure {
 @media screen and (max-width: 480px) {
   #fh5co-gallery-list li {
     margin-left: 0;
+    margin-right: 0;
   }
 }
 #fh5co-gallery-list li a {
-  min-height: 400px;
+  aspect-ratio:2/3;
   padding: 2em;
   position: relative;
   width: 100%;
@@ -721,6 +724,8 @@ h1, h2, h3, h4, h5, h6, figure {
 }
 #fh5co-gallery-list li a:before {
   position: absolute;
+  height: 100%;
+  width: 100%;
   top: 0;
   left: 0;
   right: 0;
@@ -770,16 +775,16 @@ h1, h2, h3, h4, h5, h6, figure {
   }
 }
 #fh5co-gallery-list li.one-third {
-  width: 32.3%;
+  width: 90%;
 }
 @media screen and (max-width: 768px) {
   #fh5co-gallery-list li.one-third {
-    width: 49%;
+    width: 90%;
   }
 }
 @media screen and (max-width: 480px) {
   #fh5co-gallery-list li.one-third {
-    width: 100%;
+    width: 90%;
   }
 }
 
