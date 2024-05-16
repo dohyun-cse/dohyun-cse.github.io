@@ -1,0 +1,75 @@
+<html>
+<head>
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
+    <style>
+        body {
+            background-color: #000;
+            color: #000;
+        }
+        .swiper {
+            color: #000;
+            width: 100%;
+            aspect-ratio: 2/3;
+        }
+
+        .swiper-slide {
+            text-align: center;
+            font-size: 18px;
+            background: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #000;
+        }
+
+        .swiper-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background-color: #000;
+        }
+        .swiper-button-next, .swiper-button-prev {
+            color: #222;
+        }
+        .swiper-pagination-bullet-active {
+            background-color: #000;
+        }
+        .swiper-pagination-bullet-inactive {
+            background-color: #666;
+        }
+    </style>
+</html>
+<div class="swiper mySwiper">
+    <div class="swiper-wrapper">
+        <div class="swiper-slide"><img src="wedding-final/1.jpg"></div>
+        <div class="swiper-slide"><img src="wedding-final/2.jpg"></div>
+        <div class="swiper-slide"><img src="wedding-final/3.jpg"></div>
+        <div class="swiper-slide"><img src="wedding-final/4.jpg"></div>
+        <div class="swiper-slide"><img src="wedding-final/5.jpg"></div>
+        <div class="swiper-slide"><img src="wedding-final/6.jpg"></div>
+        <div class="swiper-slide"><img src="wedding-final/7.jpg"></div>
+        <div class="swiper-slide"><img src="wedding-final/8.jpg"></div>
+        <div class="swiper-slide"><img src="wedding-final/9.jpg"></div>
+        <div class="swiper-slide"><img src="wedding-final/10.jpg"></div>
+    </div>
+    <div class="swiper-button-next"></div>
+    <div class="swiper-button-prev"></div>
+    <div class="swiper-pagination"></div>
+
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+    <script>
+        var swiper = new Swiper('.mySwiper', {
+            slidesPerView: 1,
+            spaceBetween: 10,
+            loop: true,
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+        });
+    </script>
+</div>
