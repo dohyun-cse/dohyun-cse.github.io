@@ -5,23 +5,50 @@
   font-weight: normal;
   font-style: normal;
 }
+@font-face {
+    font-family: 'Cafe24Oneprettynight';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_twelve@1.1/Cafe24Oneprettynight.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'SimKyungha';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2202-2@1.0/SimKyungha.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
 
-@font-face {
-font-family: "sim";
-    src: url(https://kiznh08bd2.execute-api.ap-northeast-2.amazonaws.com/V220613/api/woff/drop_preview_woff/?token=gAAAAABmRZN4713GWdU8xvtHtSPQYW4QTKTRmT2-SEkuQISD9kKSn6ZWuxCx9a7OqySEzl-mWX0-mJ1V879sAn3zUZbyDwUXdGjlk6ChRpNBdScdHul5xQzVfQrcMX32pbajiE03sAu9zAudrTwx-2wO8x-ljnzH_SJ48B8lLudF0PEgC31YyHnx89EloIJ32EvwJEaThngM8qg-AhWFEhgwVo9CldaQH6wmqZW8bJuExU8jDp00L_iqH5hOAbVEH3rDqfzcY3VzQT_lgLKbhs5xFOiZharAZQ%3D%3D&secret=gAAAAABmRZN4WItmvyRykvpm162WywCxEfTMm8cF6cofYEGvOAoav3yx4JbG3NFArHwYALA7GV7glnbTG540ZrkRlvR7AfZy9WzHXnzK0X-DD2_a__QPR5jTN-k285asBmFWSlB5jadI&words=7Ius6rK97ZWY7LK0&flavor=woff2) format("woff2");
-}
-@font-face{
-    font-family: "peace";
-    src: url(https://kiznh08bd2.execute-api.ap-northeast-2.amazonaws.com/V220613/api/woff/drop_preview_woff/?token=gAAAAABmRZMCpH-c0px2ndbXUnByf2JOK8614aqWOvRfxkyqZcWKZ3wS_VTsbWEpiFasjDbDpkkPuj_UE76tJIjCvp7AU5xMSlZwvqo9YyPjF9apjxXiI3g-EXuL8Hc22bI80qUGk9tCl2KhRM1VdeAH2swDm2h5yQSZ3R1bYVuNH--hEPaReAOxkrfhaHjkewe5aFdKuPpyllIdRCkPHyN0O5TxSR4b3ZgdE9Q6RQKfvkp-srpNzCAb8irybbbCq4nn_qA-r9snJT3g5X0Bi1D9GpAByIWk0A%3D%3D&secret=gAAAAABmRZMCViqcFsbYp-7S_Rk0oF7_kZbzP8MsBzyzPmZh2sPLkHgp6wGrn6f-A3_2_DSEXfv8djiPFgzdfoSLozZAa6LQ-m-qe05QnbhXPcOthWF2jN31Hs4kjfQ6bj3nTmWXr79w&flavor=woff2) format("woff2");
-    font-style: light;
+}@font-face {
+    font-family: 'GrandifloraOne-Regular';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_JAMO@1.0/GrandifloraOne-Regular.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
 }
 @font-face {
-    font-family: "goodday";
-    src: url(https://kiznh08bd2.execute-api.ap-northeast-2.amazonaws.com/V220613/api/woff/drop_preview_woff/?token=gAAAAABmRZMbkI_bIO29gDuRJ444zAvcxqLymVZ6gw6NjajxmTyeihBtcYBHlR3m27RLULvHXnFNHXUdCL56ICss_rtcyJZhfrAFbo6oVdWH7N73Ty83I68GXPIC5WiHu_RDvzTuUQmsW7rvSTyzYQiJENqnPjKUlId8JXrK6ERyVJI6Mgd6CRfYCqu4S4AWBM5QvYOr67ROxMLbkOMny7al7cA9GmbmGf2UjY4YcNHn51Gibo4DT8pbHDYaHbLARXVjNQaySeiX1OMFVyDHxUz4ncUcsEhNYw%3D%3D&secret=gAAAAABmRZMbdlatn9yBAjzhBccA4fDlvTuhBkQ6qFDYKBsxSWMyC47K1wcEvIJLkNU7p0AHTyTloT-lV8xPo8ejO8wW7AP3nzgnsSDLpG44QvYGrwipLlSg6VOZODylrM-NtbRaAExP&words=7J6Y7ZKA66as64qU7ZWY66Oo&flavor=woff2) format("woff2");
+    font-family: 'Diphylleia-Regular';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_JAMO@1.0/Diphylleia-Regular.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
 }
 @font-face {
-    font-family: "sokcho";
-    src: url("font/SokchoBadaDotum.woff2") format("woff2");
+    font-family: 'sokcho';
+    src: url('font/SokchoBadaDotum.woff2') format('woff2');
+}
+@font-face {
+    font-family: 'Yeongdeok-Blueroad';
+    src: url('font/Yeongdeok-Blueroad.ttf') format('truetype');
+    src: url('font/Yeongdeok-Blueroad.otf') format('opentype');
+}
+@font-face {
+    font-family: 'PyeongChangPeace-Light';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2206-02@1.0/PyeongChangPeace-Light.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'GowunBatang-Regular';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/GowunBatang-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
 }
 /* =======================================================
 *
@@ -29,7 +56,7 @@ font-family: "sim";
 *
 * ======================================================= */
 body {
-  font-family: "sim", cursive;
+  font-family: "SimKyungha";
   font-weight: 400;
   font-size: 16px;
   line-height: 1.7;
@@ -82,8 +109,7 @@ p {
 
 h1, h2, h3, h4, h5, h6, figure {
   color: #000;
-  font-family: "sokcho";
-  font-weight: 400;
+  font-family: "GowunBatang-Regular";
   margin: 0 0 20px 0;
 }
 
@@ -862,7 +888,9 @@ form label {
   margin-bottom: 0px;
   font-size: 100px;
   line-height: 1.5;
-  font-family: $font-subtitle;
+  /* font-family: 'PyeongChangPeace-Light'; */
+  font-family: 'Cafe24Oneprettynight';
+  font-weight: 300;
 }
 @media screen and (max-width: 768px) {
   #fh5co-header .display-tc h1,
@@ -884,6 +912,7 @@ form label {
   font-size: 20px;
   line-height: 1.5;
   margin-bottom: 30px;
+  font-family:'Diphylleia-Regular';
 }
 @media screen and (max-width: 480px) {
   #fh5co-header .display-tc h2,
@@ -958,14 +987,14 @@ form label {
 .simply-countdown > .simply-section {
   /* coutndown blocks */
   display: inline-block;
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 90px;
   background: rgba(241, 78, 149, 0.8);
   margin: 0 4px;
   -webkit-border-radius: 50%;
   -moz-border-radius: 50%;
   -ms-border-radius: 50%;
-  border-radius: 50%;
+  border-radius: 10%;
   position: relative;
   animation: pulse 1s ease infinite;
 }
@@ -1004,7 +1033,9 @@ form label {
 .simply-countdown > .simply-section .simply-word {
   color: rgba(255, 255, 255, 0.7);
   text-transform: uppercase;
-  font-size: 12px;
+  font-size: 25px;
+  margin-top: -5px;
+  margin-bottom: 10px;
   /* words */
 }
 
@@ -1200,7 +1231,7 @@ form label {
   line-height: 1.5;
   font-weight: bold;
   color: #F14E95;
-  font-family: "Grandiflora One", cursive;
+  /* font-family: "Grandiflora One", cursive; */
 }
 @media screen and (max-width: 768px) {
   .fh5co-heading h2 {
@@ -1667,7 +1698,7 @@ form label {
 .btn {
   margin-right: 4px;
   margin-bottom: 4px;
-  font-family: "Grandiflora One", cursive;
+  /* font-family: "Grandiflora One", cursive; */
   font-size: 16px;
   font-weight: 400;
   -webkit-border-radius: 30px;
