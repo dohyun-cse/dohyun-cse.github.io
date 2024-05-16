@@ -775,17 +775,7 @@ h1, h2, h3, h4, h5, h6, figure {
   }
 }
 #fh5co-gallery-list li.one-third {
-  width: 90%;
-}
-@media screen and (max-width: 768px) {
-  #fh5co-gallery-list li.one-third {
-    width: 90%;
-  }
-}
-@media screen and (max-width: 480px) {
-  #fh5co-gallery-list li.one-third {
-    width: 90%;
-  }
+  width: 100%;
 }
 
 #map {
