@@ -41,15 +41,18 @@
             object-fit: contain;
             background-color: #000;
         }
-        .swiper-pagination-bullet {
+        .swiper-pagination > .swiper-pagination-bullet {
+            opacity: 1;
             width: 18px;
             height: 18px;
+            border: #aaa solid 1px;
+            background-color: transparent;
+        }
+        .swiper-pagination > .swiper-pagination-bullet-active {
+            background-color: #aaa;
         }
         .swiper-pagination-bullet-active {
-            background-color: #AAA;
-        }
-        .swiper-pagination-bullet-inactive {
-            background-color: #999;
+            background-color: #aaa;
         }
 
         #snackbar {
