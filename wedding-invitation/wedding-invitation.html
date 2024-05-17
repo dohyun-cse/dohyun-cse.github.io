@@ -73,6 +73,23 @@
 	<script src="js/respond.min.js"></script>
 	<![endif]-->
 
+    <style>
+        .card {
+            /* Add shadows to create the "card" effect */
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            transition: 0.3s;
+        }
+
+        /* On mouse-over, add a deeper shadow */
+        .card:hover {
+            box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        /* Add some padding inside the card container */
+        .card-container {
+            padding: 2px 16px;
+        }
+    </style>
 </head>
 
 <body>
@@ -250,13 +267,48 @@
             </div>
         </div>
 
+        <div id="fh5co-guestbook" class="fh5co-section">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-8 col-md-offset-2 text-center fh5co-heading animate-box">
+                        <span>Guest Book</span>
+                        <h2>방명록</h2>
+                        <p>* 방명록은 등록 후 하루 이내로 업데이트 됩니다 *</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-8 col-md-offset-2 fh5co-heading animate-box">
+                        <div class="card">
+                            <div class="container">
+                                <h5 style="margin-top:1em;"><b>안녕하세요</b></h5>
+                                <p>첫 방명록의 주인이 되어보세요!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-8 col-md-offset-2 text-center fh5co-heading animate-box">
+                        <form id="my-form" method="POST"
+                            action="https://script.google.com/macros/s/AKfycbzxCP0dB3C89pkTUS1zc8h648WFH4gVVPW13V0CO048s-L-nQ0PKMrXVsMHsGCTehFT/exec">
+                            <input name="name" type="text" placeholder="성함" required
+                                style="width:30%; border-radius:3px; border-color:rgba(136,176,75, 0.8);">
+                            <input name="comment" type="text" placeholder="남기실 말씀" required
+                                style="width:50%; border-radius:3px; border-color:rgba(136,176,75, 0.8)">
+                            <button type="submit"
+                                style="background:rgba(136,176,75, 0.8); color:white; border:0px; border-radius:3px;">등록</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div id="fh5co-services" class="fh5co-section">
             <div class="container">
-
+                <div class="col-md-8 col-md-offset-2 text-center fh5co-heading animate-box">
+                    <h2>마음 전하실 곳</h2>
+                    <h4>계좌번호를 누르면 복사됩니다.</h4>
+                </div>
                 <div class="row animate-box">
                     <div class="col-md-8 col-md-offset-2 text-center fh5co-heading animate-box">
-                        <h2>마음 전하실 곳</h2>
-                        <h5>계좌번호를 누르면 복사됩니다.</h5>
                         <h4>신랑측</h4>
                         <p onclick="copy(this)">모) 김원경: 032-12-033895-5 부산</p>
                         <p onclick="copy(this)">신랑 김도현: 110-324-215073 신한</p>
@@ -269,26 +321,6 @@
             </div>
         </div>
 
-        <div id="fh5co-services" class="fh5co-section">
-            <div class="row">
-                <div class="col-md-8 col-md-offset-2 text-center fh5co-heading animate-box">
-                    <span>Guest Book</span>
-                    <h2>방명록</h2>
-                </div>
-            </div>
-            <div class="container">
-                <div class="row animate-box" style="margin-top:-50px">
-                    <div class="col-md-8 col-md-offset-2 text-center fh5co-heading animate-box">
-                        <form id="my-form" method="POST"
-                            action="https://script.google.com/macros/s/AKfycbzxCP0dB3C89pkTUS1zc8h648WFH4gVVPW13V0CO048s-L-nQ0PKMrXVsMHsGCTehFT/exec">
-                            <input name="name" type="text" placeholder="성함" required style="width:30%; border-radius:3px; border-color:rgba(136,176,75, 0.8);">
-                            <input name="comment" type="text" placeholder="남기실 말씀" required style="width:50%; border-radius:3px; border-color:rgba(136,176,75, 0.8)">
-                            <button type="submit" style="background:rgba(136,176,75, 0.8); color:white; border:0px; border-radius:3px;">등록</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
         <div class="gototop js-top">
             <a href="#" class="js-gotop"><i class="icon-arrow-up"></i></a>
         </div>
