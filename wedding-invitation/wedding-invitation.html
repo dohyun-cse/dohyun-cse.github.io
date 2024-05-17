@@ -268,16 +268,31 @@
                 </div>
             </div>
         </div>
+
+        <div id="fh5co-services" class="fh5co-section">
+            <div class="container">
+                <div class="row animate-box" style="margin-top:-50px">
+                    <div class="col-md-8 col-md-offset-2 text-center fh5co-heading animate-box">
+                        <h2>축하의 메시지를 남겨주세요</h2>
+                        <form id="my-form" method="POST"
+                            action="https://script.google.com/macros/s/AKfycbzxCP0dB3C89pkTUS1zc8h648WFH4gVVPW13V0CO048s-L-nQ0PKMrXVsMHsGCTehFT/exec">
+                            <input name="name" type="text" placeholder="성함" required style="width:30%">
+                            <input name="comment" type="text" placeholder="남기실 말씀" required style="width:50%">
+                            <button type="submit">등록</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="gototop js-top">
+            <a href="#" class="js-gotop"><i class="icon-arrow-up"></i></a>
+        </div>
         <div class="container text-center">
             <p>
                 <small class="block">Designed by <a href="https://dohyun-cse.github.io/" target="_blank">Dohyun Kim
                         &amp; Yunjeong Lee</a></small>
             </p>
         </div>
-    </div>
-
-    <div class="gototop js-top">
-        <a href="#" class="js-gotop"><i class="icon-arrow-up"></i></a>
     </div>
 
     <!-- jQuery -->
@@ -321,6 +336,23 @@
             month: d.getMonth() + 1,
             day: d.getDate(),
             enableUtc: false
+        });
+    </script>
+    <script>
+        window.addEventListener("load", function () {
+            const form = document.getElementById('my-form');
+            form.addEventListener("submit", function (e) {
+                e.preventDefault();
+                const data = new FormData(form);
+                const action = e.target.action;
+                fetch(action, {
+                    method: 'POST',
+                    body: data,
+                })
+                    .then(() => {
+                        alert("등록되었습니다. 방명록은 하루에 한번 업데이트 됩니다.");
+                    })
+            });
         });
     </script>
 </body>
