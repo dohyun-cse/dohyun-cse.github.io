@@ -102,7 +102,7 @@ where $\Pi_h^e$ is a projection onto $\mathbb{P}_p(e)$ and globally continuous i
 The corresponding discrete problem is: Find $u_h∈ V_h^g$ such that
 
 $$
-a_h(u_h,v):=\sum_{T\in\mathcal{T}_h}(∇ u_h,∇ v)_T=\sum_{T\in\mathcal{T}_h}(f,v)_T=:b_h(v)\quad ∀ v∈ V_h^0.
+a_h(u_h,v):=(∇ u_h,∇ v)=(f,v)=:b_h(v)\quad ∀ v∈ V_h^0.
 $$
 
 Here, $a_h(\cdot,\cdot)$ is a bilinear form, and $b_h(\cdot)$ is a linear form so that
@@ -161,7 +161,7 @@ Here, $a_h(\cdot,\cdot)$ is a bilinear form, and $b_h(\cdot)$ is a linear form s
 * For given finite element space $V_h$ with $dim(V_h)=N$, we find solution $u_h ∈ V_h$ by
 
    $$
-   a_h(u_h,v):=\sum_{T∈\mathcal{T}_h}(∇ u_h, \nabla v)_T=\sum_{T\in\mathcal{T}_h}(f,v)_T=:b_h(v)\quad∀ v∈ V_h
+   a_h(u_h,v):=(∇ u_h, \nabla v)=(f,v)=:b_h(v)\quad∀ v∈ V_h
    $$
 
 * Using the basis representation, we obtain the corresponding linear system
@@ -310,6 +310,7 @@ Here, $a_h(\cdot,\cdot)$ is a bilinear form, and $b_h(\cdot)$ is a linear form s
     $$
 * A `GridFunction` stores the primal vector, `[c_1, c_2, ..., c_N]` associated with $u_h$ and $V_h$ (`fes`).
 * If we use nodal basis functions $\phi_i(x_j)=\delta_{ij}$, then $c_i = u_h(x_i)$ for each node $x_i$.
+* It is important to distinguish "point value" and "coefficients" of a discrete functions.
 
 ---
 
@@ -445,11 +446,11 @@ GridFunction u(&fespace);
     $$
 * For given $T$, we define
   $$
-  J_T=\{j\in\mathbb{N}:\phi_j|_T\neq0\}
+  I_T=\{j\in\mathbb{N}:\phi_j|_T\neq0\}
   $$
-* If basis is local, $|J_T|\ll dim(V_h)$. Also, we have
+* If basis is local, $|I_T|\ll dim(V_h)$. Also, we have
   $$
-  a_T(\phi_i,\phi_j)=\begin{cases}c&\text{if }i,j\in J_T,\\0&\text{otherwise}.\end{cases}
+  a_T(\phi_i,\phi_j)=\begin{cases}c&\text{if }i,j\in I_T,\\0&\text{otherwise}.\end{cases}
   $$
   Similar condition holds for $b_T(\phi_j)$.
 * This implies sparsity of $A$, and provides an assembly procedure.
@@ -461,7 +462,7 @@ GridFunction u(&fespace);
 ![assembly](./images/assembly.png)
 
 * `R_T`, `P_T`: Mapping between the global and local
-  * `R_T*A = A(J_T, J_T) = A_loc`
+  * `R_T*A = A(I_T, I_T) = A_loc`
 * `B`, `Q`: Mapping between basis and values at points.
   * `B` can be function value, derivative value, etc.
 * `D`: Operation on quadrature values (dot products, weight, ...)
@@ -660,7 +661,7 @@ a_h.SetAssemblyLevel(AssemblyLevel::<LEVEL>)
    2 1 4 8 # Right (2), Segment, vertex 4 - vertex 8
    ...
    ```
-* Suppose that you want to specify Dirichlet BC at bottom.
+* When $\Gamma_D$ is `bottom`,
    ```cpp
    Mesh mesh(mesh_file);
    // create an integer array of size, the number of boundary attributes
@@ -691,7 +692,7 @@ a_h.SetAssemblyLevel(AssemblyLevel::<LEVEL>)
 # Solve Linear System
 
 * To solve a system, there are many solvers in `MFEM`.
-* Direct Sparse Solvers: `UMFPackSolver`: General matrix from `SuiteSparse`
+* Direct Sparse Solvers: `UMFPackSolver` (from `SuiteSparse`), and `MUMPS` (from `PETSc`)
 * Iterative Solvers:
   * `CG`: (Preconditioned) Conjugate gradient method for SPD system
     ```cpp
