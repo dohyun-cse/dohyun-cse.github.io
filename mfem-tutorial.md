@@ -43,7 +43,7 @@ font-size: 11px
 ##### Appl. Math., Brown Univ.
 
 _APMA 2560_
-_Feb 28, 2024_
+_Feb 25, 2025_
 
 ---
 
@@ -61,22 +61,24 @@ _Feb 28, 2024_
 
 # Weak Formulation
 
-Consider the Poisson equation with homogeneous Dirichlet BC
+Consider the Poisson equation with Dirichlet BC
 
 $$
 \begin{align*}
 -Δ u&=f&&\text{in }\Omega,\\
-u&=0&&\text{on }\partial\Omega.
+u&=g&&\text{on }\partial\Omega.
 \end{align*}
 $$
 
-The corresponding weak formulation is: Find $u∈H^1_0(\Omega)$ such that
+The corresponding weak formulation is: Find $u∈H^1_g(\Omega)$ such that
 
 $$
 \begin{equation}
 a(u,v):= (∇ u, ∇ v) = (f,v) =: b(v)\quad∀v∈H^1_0(\Omega).
 \end{equation}
 $$
+
+Here, $H^1_g(\Omega)=\{u\in H^1(\Omega):\;u|_{\partial\Omega}=g\}$.
 
 ---
 
@@ -88,7 +90,7 @@ $$V_h=\{v∈C^0(\Omega):v|_T∈ \mathbb{P}_p(T)\;∀ T∈ \mathcal{T}_h\}.$$
 We impose the boundary condition by setting
 
 $$
-V_h^g=\{v∈ V_h:v|_e=\Pi_h^eg\;∀e\in\mathcal{E}_h\}
+V_h^g=\{v∈ V_h:v|_e=\Pi_h^eg\;∀e\in\mathcal{E}_h^b\}
 $$
 
 where $\Pi_h^e$ is a projection onto $\mathbb{P}_p(e)$ and globally continuous if necessary.
@@ -124,7 +126,7 @@ Here, $a_h(\cdot,\cdot)$ is a bilinear form, and $b_h(\cdot)$ is a linear form s
    v=\sum_{j=1}^Nc_j\phi_i
    $$
 
-* Then we can rewrite the equation as: Find $u_h=\sum_{j=1}^Nc_j\phi_j$ or find $\{c_j\}_{j=1}^N$ such that
+* Find $u_h=\sum_{j=1}^Nc_j\phi_j$ or find $\{c_j\}_{j=1}^N$ such that
    $$
    a_h(\sum_{j=1}^Nc_j\phi_j,v)=\sum_{j=1}^N c_j a_h(\phi_j, v)=b_h(v)\quad∀ v∈ V_h.
    $$
@@ -150,28 +152,36 @@ Here, $a_h(\cdot,\cdot)$ is a bilinear form, and $b_h(\cdot)$ is a linear form s
    $$
    where 
    $$
-   A_{ij} = a_h(\phi_j, \phi_i), x_i = c_i, b_i = b_h(\phi_i)
+   A_{ij} = a_h(\phi_j, \phi_i),\;x_i = c_i,\;b_i = b_h(\phi_i)
    $$
+
+* Boundary Condition: $c_j$ are already known for $j\in I^B$ where $I^B$ is the set of indices related to essential boundary.
+
+* Letting $I^0$ be the set of indices related to interior degrees of freedom, we obtain
+    $$
+    A^{00}x^{0}=b^{0}-A^{0B}x^{B}
+    $$
+    where $A^{00}$ and $A^{0B}$ are submatrices of $A$ related to $I^0$ and $I^B$, respectively.
 
 
 ---
 
 # Summary
 
-* For given finite element space $V_h$ with $dim(V_h)=N$, we find solution $u_h ∈ V_h$ by
+* For given finite element space $V_h$ with $dim(V_h)=N$, we find solution $u_h ∈ V_h^g$ by
 
    $$
-   a_h(u_h,v):=(∇ u_h, \nabla v)=(f,v)=:b_h(v)\quad∀ v∈ V_h
+   a_h(u_h,v_h):=(∇ u_h, \nabla v_h)=(f,v_h)=:b_h(v_h)\quad∀ v_h∈ V_h^0.
    $$
 
 * Using the basis representation, we obtain the corresponding linear system
 
    $$
-   Ax = b
+   A^{00}x^0 = b^0 - A^{0B}x^B
    $$
    where
    $$
-   A_{ij} = a_h(\phi_j,\phi_i),\ x_i = c_i,\ b_i = b_h(\phi_i)
+   A_{ij} = a_h(\phi_j,\phi_i),\ x_i = c_i,\ b_i = b_h(\phi_i).
    $$
 
 ---
@@ -310,7 +320,8 @@ Here, $a_h(\cdot,\cdot)$ is a bilinear form, and $b_h(\cdot)$ is a linear form s
     $$
 * A `GridFunction` stores the primal vector, `[c_1, c_2, ..., c_N]` associated with $u_h$ and $V_h$ (`fes`).
 * If we use nodal basis functions $\phi_i(x_j)=\delta_{ij}$, then $c_i = u_h(x_i)$ for each node $x_i$.
-* It is important to distinguish "point value" and "coefficients" of a discrete functions.
+* It is important to distinguish "point value" and "coefficients" of a discrete function.
+* $u_h(x)$ is well-defined within each element $T$ even if $x$ is not a node.
 
 ---
 
@@ -781,28 +792,6 @@ a_h.SetAssemblyLevel(AssemblyLevel::<LEVEL>)
 
 https://dohyun-cse.github.io/mfem-tutorial
 
----
+Hands-on session: `ex0.cpp`
+- feel free to ask `C++` related questions!
 
-# Appendix
-
-- Mac OS need a patch and `patchelf`
-  ```bash
-  brew install patchelf
-  git clone git@github.com:mfem/pymfem.git
-  cd pymfem
-  git checkout rpath-patch
-  python setup.py install
-  ```
-- `PyMFEM` needs `swig`
-  ```bash
-  brew install swig
-  python -m pip install swig numpy scipy cmake
-  python setup.py install
-  ```
-- `PyMFEM` with parallel
-  ```bash
-  brew install open-mpi
-  brew install swig
-  python -m pip install mpi4py swig numpy scipy cmake
-  python setup.py install --with-parallel
-  ```
