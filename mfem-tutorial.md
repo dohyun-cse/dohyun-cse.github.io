@@ -451,15 +451,16 @@ GridFunction u(&fespace);
 
 # Assembly
 
-* With basis $\{\phi_i\}$ of $V_h$, $a_h(\cdot,\cdot)$ can be realized
+* With basis $\{\phi_i\}$ of $V_h$, $A_{ij}$ can be realized
     $$
-    a_h(\phi_i,\phi_j)=\sum_{T\in\mathcal{T}_h}a_T(\phi_i,\phi_j).
+    A_{ij}=a_h(\phi_i,\phi_j)=\sum_{T\in\mathcal{T}_h}a_T(\phi_i,\phi_j).
     $$
-* For given $T$, we define
+* For a given $T$, we define
   $$
   I_T=\{j\in\mathbb{N}:\phi_j|_T\neq0\}
   $$
-* If basis is local, $|I_T|\ll dim(V_h)$. Also, we have
+* If the support of basis is local, $|I_T|\ll dim(V_h)$.
+* Also, we have
   $$
   a_T(\phi_i,\phi_j)=\begin{cases}c&\text{if }i,j\in I_T,\\0&\text{otherwise}.\end{cases}
   $$
@@ -568,24 +569,24 @@ void MassIntegrator::AssembleElementMatrix(
 } // Also see, DiffusionIntegrator, MixedVectorDivergenceOperator, ...
 ```
 
----
-
-# Assembly Level
-
-```cpp
-a_h.SetAssemblyLevel(AssemblyLevel::<LEVEL>)
-```
-* `FULL` (or `LEGACY`)
-  * Construct global sparse matrix
-* `ELEMENT`
-  * Assemble only local matrices `A_loc`. `Ax` can be computed element-wisely,
-    $$
-        \texttt{A*x}=\sum_T P_T*(\texttt{A\_loc}*\texttt{x\_loc})
-    $$
-* `PARTIAL`
-  * Assemble only on a "reference" element, and other computations are done on-the-fly. See, <a href="http://www.lcad.icmc.usp.br/~buscaglia/teaching/fem/2015/slides20150429.pdf" target="_blank">here</a>
-* `NONE`
-  * Store nothing, everything is on-the-fly.
+<!-- --- -->
+<!---->
+<!-- # Assembly Level -->
+<!---->
+<!-- ```cpp -->
+<!-- a_h.SetAssemblyLevel(AssemblyLevel::<LEVEL>) -->
+<!-- ``` -->
+<!-- * `FULL` (or `LEGACY`) -->
+<!--   * Construct global sparse matrix -->
+<!-- * `ELEMENT` -->
+<!--   * Assemble only local matrices `A_loc`. `Ax` can be computed element-wisely, -->
+<!--     $$ -->
+<!--         \texttt{A*x}=\sum_T P_T*(\texttt{A\_loc}*\texttt{x\_loc}) -->
+<!--     $$ -->
+<!-- * `PARTIAL` -->
+<!--   * Assemble only on a "reference" element, and other computations are done on-the-fly. See, <a href="http://www.lcad.icmc.usp.br/~buscaglia/teaching/fem/2015/slides20150429.pdf" target="_blank">here</a> -->
+<!-- * `NONE` -->
+<!--   * Store nothing, everything is on-the-fly. -->
 ---
 
 # Coefficient
