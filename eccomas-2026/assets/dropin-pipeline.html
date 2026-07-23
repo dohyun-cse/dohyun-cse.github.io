@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SiMPL as a drop-in wrapper</title>
+<style>
+  html,body{margin:0;height:100%;background:transparent;overflow:hidden;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    color:#3d3229;-webkit-font-smoothing:antialiased;}
+  svg{display:block;width:100%;height:100%;}
+</style>
+</head>
+<body>
+<svg id="d" preserveAspectRatio="xMidYMid meet"></svg>
+<script>
+"use strict";
+const NS='http://www.w3.org/2000/svg';
+const BLUE='#0056B3',RED='#C0392B',GREEN='#1E8449',INK='#3d3229',MUT='#8a7d6d',
+      PAPER='#fbf8f4',GREENBG='#e7f2ec',BLUEBG='#e7effb',REDBG='#fbeceb',GRAYBG='#f1ece5';
+const svg=document.getElementById('d');
+function E(t,a,p){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);
+  if(p)p.appendChild(e);return e;}
+let cw=1200,ch=560;
+
+// arrow marker defs
+const defs=E('defs',{},svg);
+function marker(id,color){const m=E('marker',{id,viewBox:'0 0 10 10',refX:8,refY:5,
+  markerWidth:7,markerHeight:7,orient:'auto-start-reverse'},defs);
+  E('path',{d:'M0,0 L10,5 L0,10 z',fill:color},m);}
+marker('aInk',MUT); marker('aGreen',GREEN); marker('aBlue',BLUE); marker('aRed',RED);
+
+const gStatic=E('g',{},svg);
+
+// a rounded box with title + optional sub label + tag
+function box(x0,x1,yc,h,txt,sub,opt){opt=opt||{};
+  const g=E('g',{},gStatic);
+  const w=(x1-x0)*cw, x=x0*cw, y=yc*ch-h/2;
+  E('rect',{x,y,width:w,height:h,rx:h*0.16,
+    fill:opt.bg||'#fff',stroke:opt.stroke||MUT,'stroke-width':opt.sw||Math.max(1.5,ch*0.004)},g);
+  const cx=x+w/2;
+  const t=E('text',{x:cx,y:yc*ch-(sub?h*0.10:0),'text-anchor':'middle','dominant-baseline':'middle',
+    fill:opt.fg||INK,'font-weight':700,'font-size':(opt.fs||ch*0.045)},g);
+  t.textContent=txt;
+  if(sub){const s=E('text',{x:cx,y:yc*ch+h*0.24,'text-anchor':'middle','dominant-baseline':'middle',
+    fill:MUT,'font-size':ch*0.032},g);s.textContent=sub;}
+  if(opt.tag){const tw=ch*0.10, tx=x+w-tw*0.5, ty=y-ch*0.005;
+    const tg=E('rect',{x:tx-tw/2,y:ty-ch*0.028,width:tw,height:ch*0.05,rx:ch*0.025,fill:opt.tagbg||BLUE},g);
+    const tt=E('text',{x:tx,y:ty,'text-anchor':'middle','dominant-baseline':'middle',fill:'#fff',
+      'font-weight':700,'font-size':ch*0.028},g);tt.textContent=opt.tag;}
+  return {x0,x1,yc,cx:cx/cw,cy:yc};
+}
+function harrow(x0,x1,y,color,mk){E('line',{x1:x0*cw,y1:y*ch,x2:x1*cw,y2:y*ch,
+  stroke:color,'stroke-width':Math.max(1.5,ch*0.004),'marker-end':`url(#${mk})`},gStatic);}
+function label(x,y,txt,opt){opt=opt||{};const t=E('text',{x:x*cw,y:y*ch,
+  'text-anchor':opt.anchor||'start','dominant-baseline':'middle',
+  fill:opt.fill||INK,'font-weight':opt.w||600,'font-size':opt.fs||ch*0.036},gStatic);
+  t.textContent=txt;return t;}
+
+function build(){
+  while(gStatic.firstChild)gStatic.removeChild(gStatic.firstChild);
+  const xL0=0.10,xL1=0.44, xR0=0.56,xR1=0.90;   // two columns
+  const cxL=(xL0+xL1)/2, cxR=(xR0+xR1)/2;
+  const r=[0.20,0.40,0.58,0.77], bh=ch*0.145;     // four rows (vertical flow)
+  // vertical arrow between rows i0 (upper) and i1 (lower) of a column
+  const vArr=(cxf,i0,i1,color,mk)=>{const x=cxf*cw,y0=r[i0]*ch+bh/2+ch*0.008,y1=r[i1]*ch-bh/2-ch*0.008;
+    E('line',{x1:x,y1:y0,x2:x,y2:y1,stroke:color,'stroke-width':Math.max(1.5,ch*0.005),'marker-end':`url(#${mk})`},gStatic);};
+  // loop-back on the outer side: bottom row -> top row
+  const loop=(xe,side,color,mk)=>{const x=xe*cw,xo=(side<0?0.03:0.97)*cw;
+    E('path',{d:`M ${x} ${r[3]*ch} C ${xo} ${r[3]*ch}, ${xo} ${r[0]*ch}, ${x} ${r[0]*ch}`,fill:'none',
+      stroke:color,'stroke-width':Math.max(1.3,ch*0.004),'stroke-dasharray':'7 6','marker-end':`url(#${mk})`},gStatic);};
+
+  label(cxL,0.10,'Existing first-order framework',{anchor:'middle',fill:MUT,w:700,fs:ch*0.042});
+  label(cxR,0.10,'With SiMPL',{anchor:'middle',fill:BLUE,w:700,fs:ch*0.042});
+
+  // LEFT — existing
+  box(xL0,xL1,r[0],bh,'ρᵏ','design — updated in place',{bg:GRAYBG,fs:ch*0.050});
+  box(xL0,xL1,r[1],bh,'forward solve + adjoint sweep','state PDE  →  J',{bg:GREENBG,stroke:GREEN,fg:GREEN,fs:ch*0.044});
+  box(xL0,xL1,r[2],bh,'∇J','w.r.t. ρ',{bg:'#fff',fs:ch*0.050});
+  box(xL0,xL1,r[3],bh,'project · OC / MMA','clip [0,1]  +  volume λ',{bg:REDBG,stroke:RED,fg:RED,tag:'HARD',tagbg:RED,fs:ch*0.044});
+  vArr(cxL,0,1,MUT,'aInk'); vArr(cxL,1,2,MUT,'aInk'); vArr(cxL,2,3,MUT,'aInk');
+  loop(xL0,-1,MUT,'aInk');
+
+  // RIGHT — SiMPL
+  box(xR0,xR1,r[0],bh,'ρ = ∇R*(ψ)','mirror map — from latent ψᵏ',{bg:BLUEBG,stroke:BLUE,fg:BLUE,tag:'NEW',tagbg:BLUE,fs:ch*0.046});
+  box(xR0,xR1,r[1],bh,'forward solve + adjoint sweep','state PDE  →  J',{bg:GREENBG,stroke:GREEN,fg:GREEN,fs:ch*0.044});
+  box(xR0,xR1,r[2],bh,'∇J','w.r.t. ρ',{bg:'#fff',fs:ch*0.050});
+  box(xR0,xR1,r[3],bh,'ψ ← ψ − α∇J   ·   dual solve','unconstrained step  +  λ: ∫ρᵢ = Vᵢ',{bg:BLUEBG,stroke:BLUE,fg:BLUE,tag:'NEW',tagbg:BLUE,fs:ch*0.038});
+  vArr(cxR,0,1,BLUE,'aBlue'); vArr(cxR,1,2,MUT,'aInk'); vArr(cxR,2,3,MUT,'aInk');
+  loop(xR1,+1,BLUE,'aBlue');
+
+  // shared rows (sweep + gradient) connected across the columns
+  [1,2].forEach(i=>E('line',{x1:xL1*cw,y1:r[i]*ch,x2:xR0*cw,y2:r[i]*ch,
+    stroke:GREEN,'stroke-width':Math.max(1.2,ch*0.003),'stroke-dasharray':'4 4'},gStatic));
+  label(0.50,(r[1]+r[2])/2-0.018,'identical',{anchor:'middle',fill:GREEN,w:700,fs:ch*0.036});
+  label(0.50,(r[1]+r[2])/2+0.028,'reused as-is',{anchor:'middle',fill:GREEN,w:700,fs:ch*0.036});
+}
+
+// static diagram — only rebuild on container resize
+let lw=0,lh=0;
+function frame(){
+  const w=svg.clientWidth,h=svg.clientHeight;
+  if(w&&h&&(w!==lw||h!==lh)){lw=w;lh=h;cw=w;ch=h;svg.setAttribute('viewBox',`0 0 ${cw} ${ch}`);build();}
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

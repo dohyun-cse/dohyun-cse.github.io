@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SiMPL — Multi-Material Topology Optimization via Mirror Descent</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="mathjax-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" defer></script>
+  <style>
+    /* deck-wide tweaks: tighter title, larger base font */
+    .slide { font-size:24px; }
+    .slide > .frame-title { padding:.45em 1.35em .12em; }
+    .slide > .body { padding-top:.8em; }
+
+    .gallery { display:grid; gap:1em; align-items:end; }
+    .gallery.g4 { grid-template-columns:repeat(4,1fr); }
+    .gallery.g3 { grid-template-columns:repeat(3,1fr); }
+    .gallery.g2 { grid-template-columns:repeat(2,1fr); }
+    .gallery figure { margin:0; text-align:center; }
+    .gallery img { width:100%; max-height:315px; object-fit:contain; border-radius:6px; }
+    .gallery figcaption { font-size:1.2rem; color:#6b5f52; margin-top:.3em; }
+    .tag { display:inline-block; background:#0056B3; color:#fff; font-weight:700;
+           font-size:1.44rem; padding:.12em .5em; border-radius:999px; }
+    .tag.red { background:#FA2D19; }
+    figure.center-fig { margin:0; text-align:center; }
+    figure.center-fig img { max-height:400px; width:auto; max-width:100%; border-radius:6px; }
+    figure.center-fig figcaption { font-size:1.2rem; color:#6b5f52; margin-top:.4em; }
+    .maprow { display:grid; grid-template-columns:auto 1fr; gap:.4em 1em; align-items:center;
+              margin:.3em 0; }
+    .maprow .lab { font-weight:700; color:#5a4a3a; white-space:nowrap; }
+
+    /* ---- pseudocode with staged diff ---- */
+    .algo { font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+            font-size:1.5rem; line-height:1.55; }
+    .block > .block-body { padding:.45em .8em; }
+    .slide .body > p, .slide .block-body p { margin:.3em 0; }
+    .algo .line { display:block; padding:0 .5em; border-radius:4px; }
+    .algo .line.indent { padding-left:2.2em; }
+    .algo .line.ins { background:#eaf5f2; box-shadow:inset 3px 0 0 #2C7A6B; }
+    .algo .cmt { color:#8a6f5e; font-size:.85em; }
+    /* when the replacement line is revealed, strike the old update rule */
+    .algo:has(.frag-replace.visible) .line.old { text-decoration:line-through; opacity:.4; }
+    .algo .del { text-decoration:line-through; color:var(--c-red); opacity:.75; }
+
+    /* ---- click-to-swap: new content replaces old in place, no animation ---- */
+    .swap .new { display:none; transition:none; }
+    .swap:has(.new.visible) .old { display:none; }
+    .swap span.new.visible { display:inline; opacity:1; }
+    .swap figure.new.visible { display:block; opacity:1; }
+
+    /* ---- result overlaid on a problem sketch ---- */
+    .overlay-wrap { position:relative; display:inline-block; }
+    .overlay-wrap img.overlay { position:absolute; left:3%; top:5%; width:93.5%; height:90%;
+                                object-fit:contain; transition:none; }
+
+    /* compact display math inside blocks (slide 3 subproblem) */
+    .block .block-body mjx-container[display="true"] { margin:.15em 0 !important; }
+    .block .block-body .maprow { margin:.1em 0; }
+
+    /* ---- convex-set row (slide 5) ---- */
+    .setrow svg { width:100%; height:auto; max-height:150px; display:block; margin:0 auto; }
+
+    /* ---- results table (cone sweep) ---- */
+    table.results { margin:.55em auto 0; border-collapse:collapse; font-size:1.15rem; }
+    table.results th { background:var(--c-structure); color:#fff; font-weight:600;
+                       padding:.22em 1em; }
+    table.results td { padding:.2em 1em; text-align:center;
+                       border-bottom:1px solid var(--c-rule); }
+    table.results tr:nth-child(odd) td { background:#f6efe8; }
+
+    /* ---- QR codes in the title bar (top right) ---- */
+    .qr { position:absolute; top:.35em; right:1.6em; display:flex; gap:.6em; z-index:5; }
+    .qr img { width:88px; height:88px; image-rendering:pixelated; border-radius:4px; }
+    .qr figure { margin:0; text-align:center; }
+    .qr figcaption { font-size:.75rem; color:#6b5f52; margin-top:0; line-height:1.1; }
+
+    .hero-row { display:flex; gap:1.2em; align-items:flex-end; margin-top:1.2em; }
+    .hero-row figure { margin:0; text-align:center; }
+    .hero-row img { border-radius:6px; }
+    .hero-row figcaption { font-size:1.05rem; color:#6b5f52; margin-top:.3em; }
+  </style>
+</head>
+
+<body>
+<div id="stage">
+
+  <!-- ═══ 1 · TITLE — orthotropic MMTO + 3D compliance hero ═══ -->
+  <section class="slide title-slide no-count">
+    <div class="body" style="padding-top:3.2em">
+      <h1 class="title">Multi-Material Topology Optimization</h1>
+      <p class="subtitle-big">with General Convex Polytopal Constraints</p>
+      <div class="cols c2-60-40" style="gap:1em">
+        <div>
+          <p class="author" style="margin-top:.8em">Dohyun Kim</p>
+          <p class="collaborators">joint work with P. Gangl, B. Keith, B. S. Lazarov, T. M. Surowiec</p>
+          <p class="institute">Division of Applied Mathematics, Brown University</p>
+          <p class="date">Engineering Conference · 2026</p>
+        </div>
+        <div class="hero-row">
+          <figure><img src="figs/mmto-cantilever2d-aniso.png" style="max-height:230px;max-width:100%"
+            alt=""><figcaption>orthotropic — per-point fiber angle</figcaption></figure>
+          <figure><img src="figs/mult3_r004_v010_03.png" style="max-height:230px;max-width:100%"
+            alt=""><figcaption>3D compliance, three materials</figcaption></figure>
+        </div>
+      </div>
+    </div>
+    <div class="logos">
+      <img src="logos/Brown-APMA-Logo.png" alt="">
+      <img src="logos/CIGMO-logo.png" alt="">
+      <img src="logos/NNSA_Logo.png" alt="">
+    </div>
+  </section>
+
+  <!-- ═══ 2 · TO (left) vs MULTI-MATERIAL (right) ═══ -->
+  <section class="slide">
+    <h2 class="frame-title">Topology optimization — one material, then many</h2>
+    <div class="progress"><div class="progress-fill"></div><span class="progress-num"></span></div>
+    <div class="body">
+      <div class="cols c2">
+        <div>
+          <p class="subtitle">Where should material go?</p>
+          <figure class="center-fig">
+            <img src="figs/bridge2D-sol.png" alt="" style="max-height:190px">
+          </figure>
+          $$ \min_{\rho}\ J(\rho)=\int_\Omega f\cdot u(\rho)\,\dd x
+             \quad \text{s.t.}\ \ \rho(x)\in[0,1],\ \ \int_\Omega \rho\,\dd x = V|\Omega| $$
+          <ul>
+            <li><span class="bold">pointwise bound</span> + one volume budget (linear)</li>
+            <li>gradients: one adjoint solve</li>
+          </ul>
+        </div>
+        <div class="fragment">
+          <p class="subtitle">…and <span class="red">which</span> material?</p>
+          <figure class="center-fig">
+            <span class="overlay-wrap">
+              <img src="figs/multi-material-scheme.png" alt="" style="max-height:190px">
+              <img class="overlay fragment" src="figs/mmto-cantilever2d.png" alt="">
+            </span>
+          </figure>
+          <ul>
+            <li>$n$ phases $\{\mathsf{C}_i\}$ — stiff / light / cheap, or <span class="bold">fiber angles</span></li>
+            <li><span class="bold">one-of-$n$ choice at every point</span>,<br> per-phase budgets (still linear)</li>
+            <li>relax the discrete choice</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <footer class="foot"><span class="left">Brown · Applied Math</span><span class="center">Multi-Material TO via Mirror Descent</span><span class="right"></span></footer>
+  </section>
+
+  <!-- ═══ 3 · SiMPL = MIRROR DESCENT — staged pseudocode + subproblem ═══ -->
+  <section class="slide">
+    <h2 class="frame-title">SiMPL in one slide — mirror descent</h2>
+    <div class="qr">
+      <figure><img src="figs/qr-siopt.png" alt=""><figcaption>SIOPT '25</figcaption></figure>
+      <figure><img src="figs/qr-smo.png" alt=""><figcaption>SMO '25</figcaption></figure>
+    </div>
+    <div class="progress"><div class="progress-fill"></div><span class="progress-num"></span></div>
+    <div class="body" style="padding-top:.15em">
+      <div class="cols c2-60-40">
+        <div>
+          <div class="block">
+            <div class="block-title">Projected gradient → mirror descent (two edits)</div>
+            <div class="block-body algo">
+              <span class="line">given $\rho^0$;&nbsp; for $k=0,1,2,\dots$</span>
+              <span class="line indent ins fragment">$\rho^k \leftarrow \mathrm{sigmoid}(\psi^k)$ <span class="cmt">&nbsp;// latent → primal</span></span>
+              <span class="line indent">state + adjoint solve → $g^k=\nabla J(\rho^k)$</span>
+              <span class="line indent old">$\rho^{k+1} \leftarrow \mathrm{proj}_{[0,1]}\!\big(\rho^k - \alpha\, g^k\big)$</span>
+              <span class="line indent ins fragment frag-replace">$\psi^{k+1} \leftarrow \psi^k - \alpha_k\, g^k$</span>
+            </div>
+          </div>
+          <div class="block example fragment" style="margin-top:.3em">
+            <div class="block-title">Each step solves a subproblem</div>
+            <div class="block-body">
+              $$ \rho^{k+1} \;=\; \argmin_{\rho}\ \langle g^k,\rho\rangle
+                 \;+\; \tfrac{1}{\alpha_k}\,D_R(\rho,\rho^k) $$
+              <div class="maprow fragment" style="margin-top:.3em">
+                <div class="lab">first-order optimality:</div>
+                <div>$\nabla R(\rho^{k+1}) \;=\; \nabla R(\rho^k) \;-\; \alpha_k\, g^k$</div>
+              </div>
+              <div class="maprow fragment">
+                <div class="lab">latent variable $\psi \coloneqq \RED{\nabla R}(\rho)$:</div>
+                <div>$\BLUE{\psi^{k+1}} \;=\; \BLUE{\psi^{k}} \;-\; \alpha_k\, g^k$</div>
+              </div>
+              <div class="maprow fragment">
+                <div class="lab">inverse relation:</div>
+                <div>$\rho \;=\; \BLUE{\nabla R^*}(\psi) \;=\; \mathrm{sigmoid}(\psi)$</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <figure class="center-fig">
+            <img src="figs/mirror-map.png" alt="" style="max-height:195px">
+          </figure>
+          <ul style="margin-top:.4em">
+            <li class="fragment">no projection</li>
+            <li class="fragment">$\psi\to\pm\infty$ ⇒ $\rho\to\{0,1\}$ <span class="bold">exponentially</span></li>
+            <li class="fragment">$\alpha_k \approx \kappa_{\text{geom}} / \kappa_{\text{obj}}$<br>
+              secant guess, then backtrack</li>
+            <li class="fragment"><span class="blue bold">mesh-independent</span> iteration counts</li>
+          </ul>
+        </div>
+      </div>
+      <p class="footnote">Keith, Kim, Lazarov, Surowiec — <i>SIAM J. Optim.</i> 2025; <i>Struct. Multidisc. Optim.</i> 2025 (SiMPL).</p>
+    </div>
+    <footer class="foot"><span class="left">Brown · Applied Math</span><span class="center">Multi-Material TO via Mirror Descent</span><span class="right"></span></footer>
+  </section>
+
+  <!-- ═══ 3b · SINGLE-MATERIAL DIAGNOSTICS ═══ -->
+  <section class="slide">
+    <h2 class="frame-title">What convergence looks like</h2>
+    <div class="progress"><div class="progress-fill"></div><span class="progress-num"></span></div>
+    <div class="body">
+      <div class="gallery g3">
+        <figure><img src="figs/conv-mesh.png" alt="" style="max-height:300px">
+          <figcaption>compliance $F(\rho^k)$</figcaption></figure>
+        <figure><img src="figs/mbb-kkt.png" alt="" style="max-height:300px">
+          <figcaption>KKT error — tolerance in $\sim$30 its</figcaption></figure>
+        <figure><img src="figs/mbb-step-size.png" alt="" style="max-height:300px">
+          <figcaption>step size $\alpha_k$ grows — $|\psi|\to\infty$, the design <span class="bold">binarizes</span></figcaption></figure>
+      </div>
+      <div class="block example fragment" style="margin-top:.6em">
+        <div class="block-body center">
+          Curves for $h = 1/64,\ 1/128,\ 1/256$ lie <span class="bold">on top of each other</span> —
+          <span class="blue bold">mesh-independent iteration counts, measured</span>.
+        </div>
+      </div>
+    </div>
+    <footer class="foot"><span class="left">Brown · Applied Math</span><span class="center">Multi-Material TO via Mirror Descent</span><span class="right"></span></footer>
+  </section>
+
+  <!-- ═══ 4 · IS THE SIMPLEX NATURAL? ═══ -->
+  <section class="slide">
+    <h2 class="frame-title">Multi-material: is the simplex the natural choice?</h2>
+    <div class="progress"><div class="progress-fill"></div><span class="progress-num"></span></div>
+    <div class="body">
+      <div class="cols c2">
+        <div>
+          <p class="subtitle">Conventional: lift to fractions</p>
+          <ul>
+            <li>weights $\lambda\in\Delta^{n-1}$, design $\rho=\sum_i\lambda_i v_i$</li>
+            <li class="fragment">$n$ discrete angles ⇒ <span class="red bold">$n$ fields</span> for a 2-D quantity</li>
+          </ul>
+          <figure class="center-fig fragment" style="margin-top:.4em">
+            <img src="figs/hexagon.png" alt="" style="max-height:210px">
+            <figcaption>materials = vertices of a polytope $P=\mathrm{conv}\{v_i\}$</figcaption>
+          </figure>
+        </div>
+        <div class="fragment">
+          <p class="subtitle">Orthotropic: the angles already live in 2-D</p>
+          <figure class="center-fig">
+            <img src="figs/vertex_mapping.png" alt="" style="max-height:255px">
+            <figcaption>double-angle plane: vertex $k$ sits at $2\theta_k$</figcaption>
+          </figure>
+          <ul style="margin-top:.3em">
+            <li>more angles = finer polygon, <span class="blue bold">still dim 2</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <footer class="foot"><span class="left">Brown · Applied Math</span><span class="center">Multi-Material TO via Mirror Descent</span><span class="right"></span></footer>
+  </section>
+
+  <!-- ═══ 5 · CONVEX SETS ↔ ENTROPIES ═══ -->
+  <section class="slide">
+    <h2 class="frame-title">Entropy handles Geometry (Hidden in $D_\RED{R}$)</h2>
+    <div class="qr">
+      <figure><img src="figs/qr-cma.png" alt=""><figcaption>CMA '25</figcaption></figure>
+    </div>
+    <div class="progress"><div class="progress-fill"></div><span class="progress-num"></span></div>
+    <div class="body">
+      <p>A Legendre entropy $R:C\to \mathbb{R}^n$ gives a bijection $\nabla R^*:\mathbb{R}^d\to \mathrm{int}\,C$
+      <div class="gallery g4 setrow" style="margin-top:1em; align-items:start">
+        <figure>
+          <svg viewBox="0 0 200 130" xmlns="http://www.w3.org/2000/svg">
+            <line x1="30" y1="65" x2="170" y2="65" stroke="#0056B3" stroke-width="6"/>
+            <circle cx="30" cy="65" r="8" fill="#0056B3"/>
+            <circle cx="170" cy="65" r="8" fill="#0056B3"/>
+          </svg>
+          <figcaption>box — Fermi–Dirac ⇒ sigmoid</figcaption>
+        </figure>
+        <figure>
+          <svg viewBox="0 0 200 130" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="65" r="55" fill="#eaf1fa" stroke="#0056B3" stroke-width="5"/>
+          </svg>
+          <figcaption>ball — Hellinger</figcaption>
+        </figure>
+        <figure>
+          <svg viewBox="0 0 200 130" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="100,10 30,120 170,120" fill="#eaf1fa" stroke="#0056B3" stroke-width="5" stroke-linejoin="round"/>
+          </svg>
+          <figcaption>simplex — Gibbs ⇒ softmax</figcaption>
+        </figure>
+        <figure class="fragment">
+          <svg viewBox="0 0 200 130" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="62,12 140,20 184,70 132,120 55,114 18,58" fill="#fdeceb" stroke="#FA2D19" stroke-width="5" stroke-linejoin="round"/>
+          </svg>
+          <figcaption class="red bold">polytope — ? (this talk)</figcaption>
+        </figure>
+      </div>
+      <div class="block example fragment" style="margin-top:1em">
+        <div class="block-title">Key idea</div>
+        <div class="block-body">A Legendre entropy for a <span class="bold">general polytope</span> $P=\mathrm{conv}\{v_1,\dots,v_n\}\subset \mathbb{R}^n$, with closed-form $\nabla R^*$.</div>
+      </div>
+    </div>
+    <footer class="foot"><span class="left">Brown · Applied Math</span><span class="center">Multi-Material TO via Mirror Descent</span><span class="right"></span></footer>
+  </section>
+
+  <!-- ═══ 6 · POLYTOPAL ENTROPY ═══ -->
+  <section class="slide">
+    <h2 class="frame-title">The polytopal entropy</h2>
+    <div class="progress"><div class="progress-fill"></div><span class="progress-num"></span></div>
+    <div class="body">
+      <div class="cols c2-60-40">
+        <div>
+          <p>Collect the vertices in $V=[v_1\ \cdots\ v_n]$ and push the Gibbs entropy through $V$:</p>
+          $$ R^*(\psi) \;=\; \log\!\sum_{k} \exp\!\big(v_k^{\!\top}\psi\big)
+             \qquad\Longrightarrow\qquad
+             \BLUE{\rho \;=\; \nabla R^*(\psi) \;=\; V\,\mathrm{softmax}(V^{\!\top}\psi)} $$
+          <ul style="margin-top:.4em">
+            <li class="fragment">$R$ = Gibbs entropy <span class="bold">inf-projected</span> onto $P$</li>
+            <li class="fragment">closed-form $\nabla R^*$ <span class="bold">and</span> Hessian — cheap at every quadrature point</li>
+            <li class="fragment">recovers the classics: box → sigmoid, simplex → softmax</li>
+          </ul>
+        </div>
+        <div>
+          <figure class="center-fig">
+            <img src="figs/bipyramid.png" alt="" style="max-height:240px">
+            <figcaption>Octagon-base polytope in $\mathbb{R}^3$<br>void + orthotropic + isotropic</figcaption>
+          </figure>
+        </div>
+          <div class="block fragment" style="margin-top:.4em">
+            <div class="block-title">Intuition</div>
+            <div class="block-body center">$|\psi|\to+\infty \;\iff \lambda=\text{softmax}(V^T\psi)\to e_i\;\iff\; \rho\to\text{vertex}$</div>
+          </div>
+      </div>
+    </div>
+    <footer class="foot"><span class="left">Brown · Applied Math</span><span class="center">Multi-Material TO via Mirror Descent</span><span class="right"></span></footer>
+  </section>
+
+  <!-- ═══ 7 · ALGORITHM — THE ONE-LINE DIFF ═══ -->
+  <section class="slide">
+    <h2 class="frame-title">The algorithm — one line changes</h2>
+    <div class="progress"><div class="progress-fill"></div><span class="progress-num"></span></div>
+    <div class="body">
+      <div class="block">
+        <div class="block-title">SiMPL, multi-material edition</div>
+        <div class="block-body algo">
+          <span class="line">given $\psi^0$;&nbsp; for $k=0,1,2,\dots$</span>
+          <span class="line indent swap">$\rho^k \leftarrow$ <span class="old">$\mathrm{sigmoid}(\psi^k)$</span><span class="new fragment">$\BLUE{V\,\mathrm{softmax}(V^{\!\top}\psi^k)}$ <span class="cmt">&nbsp;// the only change</span></span></span>
+          <span class="line indent">state + adjoint solve → $g^k=\nabla J(\rho^k)$</span>
+          <span class="line indent">$\alpha_k\leftarrow$  secant curvature guess</span>
+          <span class="line indent">$\psi^{k+1} \leftarrow \psi^k - \alpha_k\, g^k - \mu_k$, backtrack $\alpha_k$ until $J$ decreases</span>
+          <span class="line indent cmt">// $\mu_k$: a small dual solve for the global linear constraints</span>
+        </div>
+      </div>
+      <div class="cols c2-60-40 fragment" style="margin-top:.6em">
+        <div>
+          <div class="block example" style="margin:0">
+            <div class="block-title">Everything else is inherited</div>
+            <div class="block-body">Adaptive step size, monotone backtracking, KKT gap<br>— from single-material SiMPL.</div>
+          </div>
+        </div>
+        <div>
+          <ul style="margin:0">
+            <li>first-order, gradients only</li>
+            <li>feasible at every iterate</li>
+            <li>$\psi(x)\in \mathbb{R}^d$, not $\mathbb{R}^n$</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <footer class="foot"><span class="left">Brown · Applied Math</span><span class="center">Multi-Material TO via Mirror Descent</span><span class="right"></span></footer>
+  </section>
+
+  <!-- ═══ 8 · RESULTS — 2D MULTI-MATERIAL ═══ -->
+  <section class="slide">
+    <h2 class="frame-title">Results — 2D multi-material</h2>
+    <div class="progress"><div class="progress-fill"></div><span class="progress-num"></span></div>
+    <div class="body">
+      <div class="gallery g2">
+        <figure><img src="figs/mmto-cantilever2d.png" alt=""><figcaption>three materials, per-phase budgets <span class="tag">32 it</span></figcaption></figure>
+        <figure><img src="figs/mmto-conv-2d.png" alt="" style="max-height:290px"><figcaption>compliance history — <span class="bold">monotone descent</span></figcaption></figure>
+      </div>
+    </div>
+    <footer class="foot"><span class="left">Brown · Applied Math</span><span class="center">Multi-Material TO via Mirror Descent</span><span class="right"></span></footer>
+  </section>
+
+  <!-- ═══ 9 · RESULTS — 3D + ORTHOTROPIC ═══ -->
+  <section class="slide">
+    <h2 class="frame-title">Results — 3D and orthotropic compliance</h2>
+    <div class="progress"><div class="progress-fill"></div><span class="progress-num"></span></div>
+    <div class="body">
+      <div class="cols c2" style="align-items:center">
+        <div>
+          <figure class="center-fig">
+            <img src="figs/mult3_r004_v010_03.png" alt="" style="max-height:300px">
+            <figcaption>3D, three materials <span class="tag">47 it</span></figcaption>
+          </figure>
+        </div>
+        <div class="fragment">
+          <figure class="center-fig">
+            <img src="figs/mmto-cantilever2d-aniso.png" alt="" style="max-height:280px">
+            <figcaption>orthotropic cantilever, 8 discrete fiber angles — color = angle <span class="tag">38 it</span></figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+    <footer class="foot"><span class="left">Brown · Applied Math</span><span class="center">Multi-Material TO via Mirror Descent</span><span class="right"></span></footer>
+  </section>
+
+  <!-- ═══ 9b · CONTINUOUS ANGLES — THE POLYGON'S LIMIT ═══ -->
+  <section class="slide">
+    <h2 class="frame-title">Continuous angles — the limit of the polygon</h2>
+    <div class="progress"><div class="progress-fill"></div><span class="progress-num"></span></div>
+    <div class="body" style="padding-top:.3em">
+      <div class="cols" style="grid-template-columns:36fr 64fr; align-items:center; gap:1em">
+        <figure class="center-fig">
+          <img src="figs/cone-design-space.png" alt="" style="max-height:310px;margin:-20px 0">
+          <figcaption>cone = latent ball mapped by $\nabla R^*$:<br>rim = solid at <span class="bold">any</span> $\theta$, apex = void</figcaption>
+        </figure>
+        <figure class="center-fig">
+          <img src="figs/cone-orthotropic-r8.png" alt="" style="max-height:245px">
+          <figcaption>converged design — <span class="bold">continuous</span> fiber angle (color), volume fraction $0.5$, $h=1/256$</figcaption>
+        </figure>
+      </div>
+      <table class="results fragment">
+        <tr><th>mesh size $h$</th><th>control unknowns</th><th>iterations</th><th>compliance</th><th>KKT measure</th></tr>
+        <tr><td>1/64</td><td>36,864</td><td>28</td><td>$2.76\times10^{-3}$</td><td>$9.1\times10^{-5}$</td></tr>
+        <tr><td>1/128</td><td>147,456</td><td>30</td><td>$2.77\times10^{-3}$</td><td>$9.9\times10^{-5}$</td></tr>
+        <tr><td>1/256</td><td>589,824</td><td>31</td><td>$2.77\times10^{-3}$</td><td>$9.7\times10^{-5}$</td></tr>
+      </table>
+    </div>
+    <footer class="foot"><span class="left">Brown · Applied Math</span><span class="center">Multi-Material TO via Mirror Descent</span><span class="right"></span></footer>
+  </section>
+
+  <!-- ═══ 10 · RESULTS — ELECTRIC ROTOR ═══ -->
+  <section class="slide">
+    <h2 class="frame-title">Permanent Magnet Placement</h2>
+    <div class="progress"><div class="progress-fill"></div><span class="progress-num"></span></div>
+    <div class="body">
+      <div class="cols c2-55-45">
+        <div>
+          <p>Maximize magnetic flux through the airgap:</p>
+          $$ \max\ \int_\Gamma \operatorname{curl} u\cdot \mathbf{n}\,\dd s $$
+          <figure class="center-fig fragment">
+            <img src="figs/pyramid.png" alt="" style="max-height:188px">
+            <figcaption>Red = permanent magnet direction, Black = iron</figcaption>
+          </figure>
+        </div>
+        <div class="swap">
+          <figure class="center-fig old">
+            <img src="figs/electric_motor.jpg" alt="" style="max-height:330px">
+            <figcaption>the device — rotor is the design domain</figcaption>
+          </figure>
+          <figure class="center-fig new fragment">
+            <img src="figs/motorOptimized.png" alt="" style="max-height:374px">
+            <figcaption>optimized rotor: material + orientation per point <span class="tag">38 it</span></figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+    <footer class="foot"><span class="left">Brown · Applied Math</span><span class="center">Multi-Material TO via Mirror Descent</span><span class="right"></span></footer>
+  </section>
+
+  <!-- ═══ 11 · CONCLUSION ═══ -->
+  <section class="slide">
+    <h2 class="frame-title">Conclusion</h2>
+    <div class="qr">
+      <figure><img src="figs/qr-arxiv.png" alt=""><figcaption>preprint</figcaption></figure>
+    </div>
+    <div class="progress"><div class="progress-fill"></div><span class="progress-num"></span></div>
+    <div class="body">
+      <div class="block">
+        <div class="block-body center" style="font-size:2rem">
+          <span class="bold">SiMPL for physics-encoded polytopal constraints</span><br> — same algorithm, different pointwise constraint set.
+        </div>
+      </div>
+      <ul style="margin-top:.5em">
+        <li class="fragment">the loop never changes — only <span class="blue bold">$\nabla R^*$</span> is swapped</li>
+        <li class="fragment">box, simplex, polytope, orientation polygon — <span class="blue bold">one framework</span>, feasible by construction</li>
+        <li class="fragment"><span class="blue bold">mesh-independent</span> iterations, first-order cost</li>
+      </ul>
+      <div class="block alert fragment" style="margin-top:.6em">
+        <div class="block-title">Ongoing work</div>
+        <div class="block-body">
+          <ul style="margin:0">
+            <li>general global constraints (min volume subject to critical compliance)<span class="muted">(WIP)</span></li>
+            <li>robust dual solver <span class="muted">(WIP)</span></li>
+          </ul>
+        </div>
+      </div>
+      <p class="footnote fragment">
+        Gangl, Keith, Kim, Lazarov, Surowiec — <i>Multi-material SiMPL</i> (2026) ·
+        builds on Keith, Kim, Lazarov, Surowiec — <i>SIAM J. Optim.</i> 2025 &amp; <i>Struct. Multidisc. Optim.</i> 2025.
+      </p>
+    </div>
+    <footer class="foot"><span class="left">Brown · Applied Math</span><span class="center">Multi-Material TO via Mirror Descent</span><span class="right"></span></footer>
+  </section>
+
+  <!-- ═══ 12 · THANK YOU ═══ -->
+  <section class="slide section-slide no-count">
+    <div class="body">
+      <div class="section-title">Thank you</div>
+      <div class="section-number" style="margin-top:1em">Dohyun Kim · dohyun_kim@brown.edu</div>
+    </div>
+  </section>
+
+</div>
+
+<div id="hud">1 / 1</div>
+<div id="help">
+  <div>
+    <h2 style="margin-top:0">Keyboard shortcuts</h2>
+    <table>
+      <tr><td><kbd>→</kbd> / <kbd>Space</kbd></td><td>next step / slide</td></tr>
+      <tr><td><kbd>←</kbd></td><td>previous</td></tr>
+      <tr><td><kbd>f</kbd></td><td>fullscreen</td></tr>
+      <tr><td><kbd>?</kbd></td><td>toggle help</td></tr>
+    </table>
+  </div>
+</div>
+
+<script src="slides.js"></script>
+</body>
+</html>

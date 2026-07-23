@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Manifold &amp; Atlas</title>
+
+    <!-- three.js from a CDN (https URLs work from file:// without a server) -->
+    <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  </head>
+
+  <body>
+    <!-- framework, math library, and algorithm load as classic scripts (file://-safe) -->
+    <script src="canvas-template.js"></script>
+    <script src="manifold.js"></script>
+    <script src="atlas-app.js"></script>
+
+    <script type="module">
+      import * as THREE from 'three';
+      import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+      ThreeTemplate.useThree({THREE, OrbitControls});
+
+      // ── the manifold: a torus T² (swap this block for any surface) ──────
+      const R = 2.0, r = 0.7;
+      const M = new Manifold({
+        param: (th, ph) => [(R + r * Math.cos(th)) * Math.cos(ph), (R + r * Math.cos(th)) * Math.sin(ph), r * Math.sin(th)],
+        duFn: (th, ph) => [-r * Math.sin(th) * Math.cos(ph), -r * Math.sin(th) * Math.sin(ph), r * Math.cos(th)],
+        dvFn: (th, ph) => [-(R + r * Math.cos(th)) * Math.sin(ph), (R + r * Math.cos(th)) * Math.cos(ph), 0],
+        normalFn: (th, ph) => [Math.cos(th) * Math.cos(ph), Math.cos(th) * Math.sin(ph), Math.sin(th)],
+        uRange: [0, 2 * Math.PI], vRange: [0, 2 * Math.PI],
+      });
+
+      const algo = new AtlasApp(M);
+      const viz = new ThreeTemplate.Visualizer(algo, {background: 0x111111, fov: 40, cameraPosition: [5, -5, 3.5]});
+
+      // full step = next stage; sub-step = one frame of the exp_p warp animation
+      viz.addPlayback({substeps: true, backward: true, mode: 'sub', speed: 30, autohideLevel: 1});
+
+      const log = viz.addLogger(0);
+      log.addStatus('stage', () => algo.getStage(), '%d');
+      log.addStatus('phase', () => algo.getPhase(), '%s');
+      log.addStatus('ρ', () => algo.getRho(), '%.2f');
+      log.addStatus('morph', () => algo.getMorph(), '%.2f');
+
+      const menu = viz.addMenu(2);
+      const pt = menu.addTab('Point p');
+      pt.addText('Click the torus to move p. Double-click to reset the camera.');
+      pt.addSlider('θ₀', v => algo.setPoint('theta', v), {min: 0, max: 2 * Math.PI, value: Math.PI / 3, step: 0.01, format: '%.2f'});
+      pt.addSlider('φ₀', v => algo.setPoint('phi', v), {min: 0, max: 2 * Math.PI, value: 0, step: 0.01, format: '%.2f'});
+
+      const gm = menu.addTab('Geometry');
+      gm.addSlider('Tangent radius ρ', v => algo.setRho(v), {min: 0.3, max: 2.0, value: 1.2, step: 0.05, format: '%.2f'});
+      gm.addSlider('Chart radius', v => algo.setChartRadius(v), {min: 0.3, max: 1.2, value: 0.78, step: 0.02, format: '%.2f'});
+
+      viz.start();
+    </script>
+  </body>
+
+</html>

@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Topology Optimization via Mirror Descent — Notes</title>
+  <link rel="stylesheet" href="book.css">
+  <script src="mathjax-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" defer></script>
+  <!-- marked: Markdown → HTML. Used by book.js to render chapters/*.md. -->
+  <script src="https://cdn.jsdelivr.net/npm/marked@14/marked.min.js"></script>
+</head>
+
+<body data-view="long">
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       Persistent header.
+       Long view  →   [☰]  Book Title                              [⇆]
+       Short view →   [☰]  Chapter Title              [‹] [›]      [⇆]
+       ════════════════════════════════════════════════════════════════════ -->
+  <header id="topbar">
+    <button id="btn-hamburger" aria-label="Open contents" title="Contents (table)">☰</button>
+    <div class="title" id="header-title">Book Title</div>
+    <div class="nav-group">
+      <button id="btn-prev" aria-label="Previous chapter" title="Previous chapter">‹</button>
+      <button id="btn-next" aria-label="Next chapter" title="Next chapter">›</button>
+    </div>
+    <button id="btn-view" aria-label="Toggle view" title="Toggle long / short view">⇆</button>
+  </header>
+
+  <!-- Slide-out ToC drawer (opens from the hamburger). -->
+  <div id="toc-backdrop"></div>
+  <aside id="toc-drawer" aria-label="Contents">
+    <div class="toc-head">
+      <span>Contents</span>
+      <button id="btn-close-drawer" aria-label="Close contents">✕</button>
+    </div>
+    <ol id="drawer-list"></ol>
+  </aside>
+
+
+  <main>
+
+    <!-- ════════════════════════════════════════════════════════════════
+         Front matter: cover + abstract + ToC.
+         In short view, this is a single first "page". In long view, it
+         scrolls into the chapters below.
+         ════════════════════════════════════════════════════════════════ -->
+    <div class="front-matter" id="front-matter">
+
+      <section class="cover">
+        <h1 class="title">Topology Optimization via Mirror Descent</h1>
+        <p class="subtitle">A constraint-aware geometry for density-based design</p>
+        <p class="authors">
+          Dohyun Kim<sup>1</sup> &middot; Collaborator A<sup>1</sup> &middot; Collaborator B<sup>2</sup>
+        </p>
+        <p class="affiliation">
+          <sup>1</sup>Division of Applied Mathematics, Brown University &middot;
+          <sup>2</sup>Affiliation B
+        </p>
+        <p class="date">Working notes &middot; May 2026</p>
+
+        <div class="logos">
+          <img src="logos/Brown-APMA-Logo.png" alt="Brown APMA">
+          <img src="logos/CIGMO-logo.png" alt="CIGMO">
+          <img src="logos/NNSA_Logo.png" alt="NNSA">
+        </div>
+      </section>
+
+      <section class="abstract">
+        <h2>Abstract</h2>
+        <p>
+          We present a mirror-descent approach to density-based topology
+          optimization that respects the pointwise box constraints
+          $0\le\rho\le 1$ as part of the geometry of the iterates. The
+          method replaces the Euclidean projection step of projected
+          gradient descent with a Bregman projection induced by a
+          constraint-aware entropy, yielding feasible iterates by
+          construction and improved convergence on benchmark compliance
+          problems.
+        </p>
+      </section>
+
+      <nav class="toc" aria-label="Table of contents">
+        <h2>Contents</h2>
+        <ol id="toc-list"></ol>
+      </nav>
+
+    </div>
+
+
+    <!-- ════════════════════════════════════════════════════════════════
+         Chapters: each placeholder is replaced by the contents of the
+         referenced file at load time.
+
+         - .md files are parsed as Markdown. The file is auto-wrapped in
+           <section class="chapter" id="{filename}"> (filename minus the
+           leading "NN-" prefix). Use:
+
+               # Chapter title
+               ## Subsection (h3 in the rendered output)
+               …prose with $math$ and \begin{equation}…\end{equation}…
+
+               > [!Theorem^thm-foo] optional title
+               > body of the theorem
+               > $$ display\ math $$
+
+               > [!Definition^def-foo] Bregman divergence
+               > …
+
+               > [!Proof]
+               > Apply <a class="ref" data-ref="thm-foo"></a> and …
+
+               > [!Block] Block title
+               > body of the block (also: !Alert, !Example)
+
+         - .html files are injected verbatim (no markdown processing).
+
+         NOTE: serve over HTTP (e.g. `python3 -m http.server`).
+         `file://` URLs can't fetch.
+         ════════════════════════════════════════════════════════════════ -->
+    <div data-chapter-src="chapters/01-introduction.md"></div>
+    <div data-chapter-src="chapters/02-bregman.md"></div>
+    <div data-chapter-src="chapters/03-mirror-descent.md"></div>
+    <div data-chapter-src="chapters/04-experiments.md"></div>
+    <div data-chapter-src="chapters/05-conclusion.md"></div>
+    <div data-chapter-src="chapters/06-index.md"></div>
+    <div data-chapter-src="chapters/07-references.md"></div>
+
+  </main>
+
+  <script src="book.js"></script>
+</body>
+</html>

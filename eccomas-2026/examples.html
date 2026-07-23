@@ -1,0 +1,268 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Talk Title — Speaker</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="mathjax-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" defer></script>
+</head>
+
+<body>
+
+<div id="stage">
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       SLIDE 1 — Title slide
+       Use class="title-slide no-count" so it doesn't count toward the
+       progress bar (matches your Beamer `[plain, noframenumbering]`).
+       ════════════════════════════════════════════════════════════════════ -->
+  <section class="slide title-slide no-count">
+    <div class="body">
+          <h1 class="title">Talk Title</h1>
+      <p class="subtitle-big">Subtitle</p>
+      <p class="author">
+        Dohyun Kim
+      </p>
+      <p class="collaborators">
+        joint work with my collaborators
+      </p>
+      <p class="institute">Division of Applied Mathematics, Brown University</p>
+      <p class="date">Conference / Group Meeting · 2026</p>
+    </div>
+    <div class="logos">
+      <img src="logos/Brown-APMA-Logo.png" alt="">
+      <img src="logos/CIGMO-logo.png" alt="">
+      <img src="logos/NNSA_Logo.png" alt="">
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       SLIDE 2 — Standard content slide: title, blue subtitle, bullets
+       ════════════════════════════════════════════════════════════════════ -->
+  <section class="slide">
+    <h2 class="frame-title">Slide Title</h2>
+    <div class="progress"><div class="progress-fill"></div><span class="progress-num"></span></div>
+    <div class="body">
+      <p class="subtitle">Subtitle</p>
+
+      <ul>
+        <li>This is item 1</li>
+            <li>Change style: <span style="font-weight:700">like this</span>, <span class="red" style="font-style:italic">like this</span>, or <span class="bold">like this</span></li>
+      </ul>
+      <p> Regular text can go here, too. </p>
+      <div class="fragment">
+        <p>This will be revealed step-by-step:</p>
+      </div>
+      <ul>
+        <li class="fragment">First, this item appears.</li>
+        <li class="fragment">Then, this one with equation
+              $$
+              \begin{align}
+              \min_{x}\ & f(x) \tag{\theequation a}\\
+              \text{s.t.}\ & g(x)\le 0, \tag{\theequation b}\\
+              & h(x)=0.\tag{\theequation c}
+              \end{align}
+              $$
+              $$\begin{equation}e^{i\pi}+1=0\end{equation}$$
+
+        </li>
+        <li class="fragment">Finally, this one with inline equation $e^{i\pi}+1=0$.</li>
+      </ul>
+    </div>
+
+    <footer class="foot">
+      <span class="left">Brown · Applied Math</span>
+      <span class="center">Topology Optimization via Mirror Descent</span>
+      <span class="right"></span>
+    </footer>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       SLIDE 3 — Two-column layout (math left, figure right)
+       Use .cols.c2-55-45 for a 55/45 split (\sidebyside{0.55}{0.45}{...}).
+       ════════════════════════════════════════════════════════════════════ -->
+  <section class="slide">
+    <h2 class="frame-title">Compliance Minimization</h2>
+    <div class="progress"><div class="progress-fill"></div><span class="progress-num"></span></div>
+    <div class="body">
+      <div class="cols c2-55-45">
+        <div>
+          $$
+              \begin{alignat}{1}
+            \min_{\rho}\ & F(\rho)=\int_\Omega u\cdot f\,\dd x \\
+            \text{s.t.}\ & -\nabla\!\cdot\!\big(\mathsf{C}(r(\tilde\rho))\!:\!\varepsilon(u)\big)=f, \\
+                         & -\nabla\!\cdot\!(\epsilon^2\nabla\tilde\rho)+\tilde\rho=\rho, \\
+                         & \int_\Omega\rho\,\dd x = V_f|\Omega|, \\
+                         & \RED{0\le\rho\le 1.}
+          \end{alignat}
+          $$
+        </div>
+        <div>
+          <figure>
+            <!-- <img src="figs/mbb-problem.png" alt="MBB problem"> -->
+            <div style="background:#f4f0ec;border:1px dashed #c8bfb6;height:280px;
+                        display:grid;place-items:center;color:#9c8f82;">
+              figure placeholder
+            </div>
+            <figcaption>MBB beam test problem</figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <ul class="fragment">
+        <li>$\mathsf{C}(r(\tilde\rho))$: SIMP penalization, $r(t)=t^p$ with $p=3$</li>
+        <li>$\epsilon$: length scale (PDE filter $\to$ smooth density $\tilde\rho$)</li>
+        <li><span class="red">Pointwise inequality constraints</span> are the key challenge</li>
+      </ul>
+    </div>
+
+    <footer class="foot">
+      <span class="left">Brown · Applied Math</span>
+      <span class="center">Topology Optimization via Mirror Descent</span>
+      <span class="right"></span>
+    </footer>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       SLIDE 4 — Section divider
+       ════════════════════════════════════════════════════════════════════ -->
+  <section class="slide section-slide no-count">
+    <div class="body">
+      <div class="section-number">PART II</div>
+      <div class="section-title">A Mirror Descent Approach</div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       SLIDE 5 — Blocks (definition / alert / example), step-by-step reveal
+       ════════════════════════════════════════════════════════════════════ -->
+  <section class="slide">
+    <h2 class="frame-title">Blocks &amp; Step-by-step Reveals</h2>
+    <div class="progress"><div class="progress-fill"></div><span class="progress-num"></span></div>
+    <div class="body">
+
+      <div class="block">
+        <div class="block-title">Definition</div>
+        <div class="block-body">
+          The Bregman divergence is $D_\phi(x,y)=\phi(x)-\phi(y)-\langle\nabla\phi(y),x-y\rangle$.
+        </div>
+      </div>
+
+      <div class="block alert fragment">
+        <div class="block-title">Warning</div>
+        <div class="block-body">
+          Projected gradient is <span class="bold">non-smooth</span> at the boundary.
+        </div>
+      </div>
+
+      <div class="block example fragment">
+        <div class="block-title">Idea</div>
+        <div class="block-body">
+          Replace Euclidean distance with a <span class="bold">constraint-aware</span> distance.
+        </div>
+      </div>
+
+      <p class="fragment center" style="margin-top:1em">
+        Press <kbd>→</kbd> to step through fragments.
+      </p>
+    </div>
+
+    <footer class="foot">
+      <span class="left">Brown · Applied Math</span>
+      <span class="center">Topology Optimization via Mirror Descent</span>
+      <span class="right"></span>
+    </footer>
+  </section>
+
+
+
+    <footer class="foot">
+      <span class="left">Brown · Applied Math</span>
+      <span class="center">Topology Optimization via Mirror Descent</span>
+      <span class="right"></span>
+    </footer>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       SLIDE 7 — Manifold and atlas (interactive Three.js scene)
+       Source: assets/atlas.html — drag to rotate, scroll to zoom,
+       click the stage buttons. A baked MP4 (assets/atlas.mp4 from
+       atlas.py) is kept as a fallback for print/handout use.
+       ════════════════════════════════════════════════════════════════════ -->
+  <section class="slide">
+    <h2 class="frame-title">Manifolds and Atlases</h2>
+    <div class="progress"><div class="progress-fill"></div><span class="progress-num"></span></div>
+    <div class="body">
+      <div class="cols c2-55-45">
+        <div>
+          <p class="subtitle">From a point to a coordinate atlas</p>
+          <ol>
+            <li>The manifold $M$ — here, a torus $T^2$</li>
+            <li>Pick a point $p\in M$</li>
+            <li>A local chart $(U_\alpha,\,\varphi_\alpha)$ around $p$</li>
+            <li>The tangent plane $T_pM$ — best linear approximation</li>
+            <li>Exponential map $\exp_p:T_pM\to M$ (morphing)</li>
+            <li>When $M$ is associated with a Lie algebra $\mathfrak{g}$,
+                  $$\exp_p(v)=p\cdot\exp\!\bigl(d\log_{p}v\bigr)\quad\text{for }v\in T_pM$$</li>
+            <li>Cover $M$ by overlapping charts $\{(U_\alpha,\,\varphi_\alpha)\}_{\alpha\in A}$</li>
+          </ol>
+        </div>
+        <div>
+          <iframe src="assets/atlas.html"
+                  style="width:100%; height:420px; border:none; border-radius:4px;
+                         background:#111;"
+                  loading="lazy"
+                  title="Interactive torus with charts and tangent plane"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <footer class="foot">
+      <span class="left">Brown · Applied Math</span>
+      <span class="center">Topology Optimization via Mirror Descent</span>
+      <span class="right"></span>
+    </footer>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       SLIDE 8 — Closing / thank-you slide
+       ════════════════════════════════════════════════════════════════════ -->
+  <section class="slide section-slide no-count">
+    <div class="body">
+      <div class="section-title">Thank you</div>
+      <div class="section-number" style="margin-top:1em">questions?</div>
+    </div>
+  </section>
+
+</div>
+
+<!-- floating slide counter -->
+<div id="hud">1 / 1</div>
+
+<!-- help overlay (press ?) -->
+<div id="help">
+  <div>
+    <h2 style="margin-top:0">Keyboard shortcuts</h2>
+    <table>
+      <tr><td><kbd>→</kbd> / <kbd>Space</kbd> / <kbd>PgDn</kbd></td><td>next step / slide</td></tr>
+      <tr><td><kbd>←</kbd> / <kbd>PgUp</kbd></td><td>previous</td></tr>
+      <tr><td><kbd>Home</kbd> / <kbd>End</kbd></td><td>first / last slide</td></tr>
+      <tr><td><kbd>f</kbd></td><td>toggle fullscreen</td></tr>
+      <tr><td><kbd>?</kbd></td><td>toggle this help</td></tr>
+      <tr><td>print → PDF</td><td>one slide per page</td></tr>
+    </table>
+  </div>
+</div>
+
+<script src="slides.js"></script>
+</body>
+</html>

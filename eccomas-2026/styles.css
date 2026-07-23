@@ -1,0 +1,370 @@
+/* ============================================================
+   HTML slide template — mirrors the SimplePlusAIC Beamer look.
+   Reference slide size: 1280 x 720 (16:9). All typography is
+   expressed in `em` so the deck scales with --slide-scale.
+   ============================================================ */
+
+:root {
+  /* Structure color = Brown University brown (Beamer "Brown"). */
+  --c-structure:  #4E3629;
+  --c-structure-soft: #8a6f5e;
+  --c-light:      #E6CDBE;          /* LightBrown */
+
+  /* User accent colors from your preamble.tex */
+  --c-blue:       #0056B3;
+  --c-red:        #FA2D19;
+  --c-green:      #1E8449;
+  --c-orange:     #E07B00;
+
+  /* Block colors (Beamer "blocks") */
+  --c-block-bg:        #f6efe8;
+  --c-block-title-bg:  var(--c-structure);
+  --c-alert-title-bg:  #C0392B;
+  --c-alert-body-bg:   #fbecea;
+  --c-example-title-bg:#2C7A6B;
+  --c-example-body-bg: #eaf5f2;
+
+  --c-bg:         #ffffff;
+  --c-text:       #1a1a1a;
+  --c-muted:      #6b6b6b;
+  --c-rule:       #e2dcd6;
+
+  --font-sans: "Helvetica Neue", "Arial", "Liberation Sans", sans-serif;
+  --font-serif: "Latin Modern Roman", "Computer Modern", Cambria, Georgia, serif;
+  --font-mono: "JetBrains Mono", "Menlo", "Consolas", monospace;
+}
+
+/* ---------- page chrome ---------- */
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #2b2b2b;            /* dark surround so the slide pops */
+  color: var(--c-text);
+  font-family: var(--font-sans);
+  overflow: hidden;
+  height: 100%;
+}
+
+/* Stage: a fixed viewport-sized clipper. Each slide is absolutely
+   anchored at 50/50 and then `translate(-50%,-50%) scale()`d. This
+   keeps the slide center pinned to the viewport center even when the
+   un-scaled 1280×720 box is larger than the viewport (which it usually
+   is). The scale factor is set in JS as `--slide-scale` on :root. */
+#stage {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+.slide {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1280px;
+  height: 720px;
+  transform: translate(-50%, -50%) scale(var(--slide-scale, 1));
+  transform-origin: center center;
+  background: var(--c-bg);
+  color: var(--c-text);
+  display: none;                  /* only .slide.active is shown */
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  font-size: 22px;                /* base unit; everything below uses em */
+  line-height: 1.35;
+}
+.slide.active { display: block; }
+
+/* ---------- frame title + progress bar (content slides) ---------- */
+.slide > .frame-title {
+  font-weight: 700;
+  font-size: 1.6em;
+  color: var(--c-structure);
+  padding: 0.9em 1.5em 0.2em;
+  letter-spacing: -0.005em;
+}
+
+.slide > .progress {
+  margin: 0 1.5em;
+  height: 2px;
+  background: #e8e2dc;
+  position: relative;
+}
+.slide > .progress > .progress-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--c-structure);
+  width: var(--progress, 0%);
+}
+.slide > .progress > .progress-num {
+  position: absolute;
+  right: 0;
+  bottom: 4px;
+  font-size: 0.55em;
+  color: var(--c-muted);
+}
+
+/* ---------- body ---------- */
+.slide > .body {
+  padding: 1.1em 2em 0;
+  height: calc(720px - 6.5em);    /* leave room for title + footer */
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.slide .subtitle {
+  color: var(--c-blue);
+  font-weight: 700;
+  font-size: 1em;
+  margin: 0 0 0.6em;
+}
+
+/* ---------- footer ---------- */
+.slide > .foot {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 0.45em 1.5em;
+  font-size: 0.55em;
+  color: white;
+  background: var(--c-structure);
+}
+.slide > .foot .right { text-align: right; }
+
+/* ---------- title slide variant ---------- */
+.slide.title-slide > .body {
+  padding: 9em 2.2em 0;
+  height: 720px;
+}
+.slide.title-slide .title {
+  font-size: 2.5em;
+  font-weight: 700;
+  color: var(--c-structure);
+  margin: 0 0 0.3em;
+  letter-spacing: -0.01em;
+}
+.slide.title-slide .subtitle-big {
+  font-size: 1.5em;
+  color: var(--c-structure-soft);
+  margin: 0 0 1.5em;
+  font-weight: 500;
+}
+.slide.title-slide .author {
+  font-size: 1.3em;
+  margin: 0 0 0.2em;
+}
+.slide.title-slide .author small { color: var(--c-muted); }
+.slide.title-slide .institute {
+  font-size: 0.8em;
+  color: var(--c-muted);
+  margin: 0.3em 0em 2em;
+}
+.slide.title-slide .collaborators {
+  font-size: 0.8em;
+  color: var(--c-muted);
+  margin: 0.3em 0em 2em;
+}
+.slide.title-slide .date {
+  font-size: 1em;
+  color: var(--c-muted);
+  margin: 0.3em 0;
+}
+.slide.title-slide .logos {
+  position: absolute;
+  right: 1.8em;
+  bottom: 1.8em;
+  display: flex;
+  gap: 1.5em;
+  align-items: center;
+}
+.slide.title-slide .logos img { height: 100px; width: auto; }
+.slide.title-slide .corner-logo {
+  position: absolute;
+  top: 1.5em;
+  left: 1.8em;
+  height: 60px;
+}
+
+/* ---------- section divider slide ---------- */
+.slide.section-slide { background: var(--c-structure); color: white; }
+.slide.section-slide > .body {
+  display: grid;
+  place-content: center;
+  text-align: center;
+  height: 720px;
+  padding: 0 3em;
+}
+.slide.section-slide .section-number {
+  font-size: 1em;
+  letter-spacing: 0.3em;
+  color: var(--c-light);
+  margin-bottom: 0.5em;
+}
+.slide.section-slide .section-title {
+  font-size: 2.4em;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- text helpers (mirror \BLUE \RED \GREEN \ORANGE) ---------- */
+.blue   { color: var(--c-blue); }
+.red    { color: var(--c-red); }
+.green  { color: var(--c-green); }
+.orange { color: var(--c-orange); }
+.muted  { color: var(--c-muted); }
+.bold   { font-weight: 700; }
+.center { text-align: center; }
+
+/* ---------- itemize / enumerate ---------- */
+.slide ul, .slide ol {
+  padding-left: 1.2em;
+  margin: 0.3em 0;
+}
+.slide ul > li, .slide ol > li {
+  margin: 0.35em 0;
+}
+.slide ul { list-style: none; }
+.slide ul > li::before {
+  content: "•";
+  color: var(--c-structure);
+  font-weight: 700;
+  display: inline-block;
+  width: 1em;
+  margin-left: -1em;
+}
+
+/* ---------- two/three column layout ---------- */
+.cols {
+  display: grid;
+  gap: 1.5em;
+}
+.cols.c2 { grid-template-columns: 1fr 1fr; }
+.cols.c2-55-45 { grid-template-columns: 55fr 45fr; }
+.cols.c2-60-40 { grid-template-columns: 60fr 40fr; }
+.cols.c3 { grid-template-columns: 1fr 1fr 1fr; }
+
+/* ---------- blocks (\begin{block}, \begin{alertblock}, ...) ---------- */
+.block {
+  margin: 0.5em 0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.block > .block-title {
+  background: var(--c-block-title-bg);
+  color: white;
+  padding: 0.35em 0.8em;
+  font-weight: 600;
+}
+.block > .block-body {
+  background: var(--c-block-bg);
+  padding: 0.6em 0.8em;
+}
+.block.alert > .block-title { background: var(--c-alert-title-bg); }
+.block.alert > .block-body  { background: var(--c-alert-body-bg); }
+.block.example > .block-title { background: var(--c-example-title-bg); }
+.block.example > .block-body  { background: var(--c-example-body-bg); }
+
+/* ---------- figures ---------- */
+.slide figure {
+  margin: 0.5em auto;
+  text-align: center;
+}
+.slide figure img,
+.slide figure video {
+  max-width: 100%;
+  max-height: 420px;
+  object-fit: contain;
+}
+.slide figcaption {
+  font-size: 0.7em;
+  color: var(--c-muted);
+  margin-top: 0.3em;
+}
+
+/* ---------- math (MathJax serif) ---------- */
+mjx-container { font-family: var(--font-serif) !important; }
+
+/* ---------- code ---------- */
+.slide code {
+  font-family: var(--font-mono);
+  background: #f4f0ec;
+  padding: 0.05em 0.3em;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+.slide pre {
+  background: #f4f0ec;
+  padding: 0.7em 0.9em;
+  border-left: 3px solid var(--c-structure);
+  font-size: 0.8em;
+  overflow: auto;
+}
+
+/* ---------- fragments (\uncover<n->) ---------- */
+.fragment {
+  opacity: 0;
+  transition: opacity 0.15s linear;
+}
+.fragment.visible { opacity: 1; }
+
+/* ---------- references / footnotes ---------- */
+.slide .footnote {
+  position: absolute;
+  left: 1.8em;
+  right: 1.8em;
+  bottom: 2.2em;
+  font-size: 0.55em;
+  color: var(--c-muted);
+  border-top: 1px solid var(--c-rule);
+  padding-top: 0.3em;
+}
+
+/* ---------- HUD: slide counter + help ---------- */
+#hud {
+  position: fixed;
+  bottom: 12px;
+  right: 16px;
+  color: #bbb;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  pointer-events: none;
+  z-index: 10;
+}
+#help {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.78);
+  color: white;
+  display: none;
+  place-items: center;
+  z-index: 20;
+  font-family: var(--font-sans);
+}
+#help.show { display: grid; }
+#help kbd {
+  background: #444;
+  border: 1px solid #666;
+  border-bottom-width: 2px;
+  padding: 1px 7px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+#help table { border-spacing: 16px 8px; }
+
+/* ---------- print: one slide per page, no chrome ---------- */
+@media print {
+  @page { size: 1280px 720px; margin: 0; }
+  html, body { background: white; overflow: visible; height: auto; }
+  #stage { position: static; overflow: visible; }
+  #hud, #help { display: none !important; }
+  .slide {
+    display: block !important;
+    position: static;
+    transform: none !important;
+    page-break-after: always;
+    box-shadow: none;
+  }
+  .fragment { opacity: 1 !important; }   /* show all fragments when printing */
+}

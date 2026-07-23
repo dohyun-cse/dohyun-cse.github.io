@@ -1,0 +1,678 @@
+/* ============================================================
+   Book / long-form template — companion to slides.css.
+   Shares the SimplePlusAIC color palette so a deck and its
+   write-up read as one document.
+
+   Two view modes, switched via body[data-view]:
+     - data-view="long"   continuous scroll, article style
+     - data-view="short"  one chapter at a time, app style
+   ============================================================ */
+
+:root {
+  --c-structure:        #4E3629;          /* Brown brown */
+  --c-structure-soft:   #8a6f5e;
+  --c-light:            #E6CDBE;
+
+  --c-blue:             #0056B3;
+  --c-red:              #FA2D19;
+  --c-green:            #1E8449;
+  --c-orange:           #E07B00;
+
+  --c-block-bg:         #f6efe8;
+  --c-block-title-bg:   var(--c-structure);
+  --c-alert-title-bg:   #C0392B;
+  --c-alert-body-bg:    #fbecea;
+  --c-example-title-bg: #2C7A6B;
+  --c-example-body-bg:  #eaf5f2;
+
+  --c-bg:               #ffffff;
+  --c-paper:            #fafaf7;
+  --c-text:             #1a1a1a;
+  --c-muted:            #6b6b6b;
+  --c-rule:             #e2dcd6;
+  --c-link:             #0056B3;
+
+  --font-sans:  "Helvetica Neue", "Arial", "Liberation Sans", sans-serif;
+  --font-serif: "Latin Modern Roman", "Computer Modern", Cambria, "Charter", Georgia, serif;
+  --font-mono:  "JetBrains Mono", "Menlo", "Consolas", monospace;
+
+  --col-width: 720px;
+  --header-h:  56px;
+}
+
+/* ---------- page chrome ---------- */
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--c-paper);
+  color: var(--c-text);
+  font-family: var(--font-serif);
+  font-size: 18px;
+  line-height: 1.6;
+}
+body { padding-top: var(--header-h); }
+
+a { color: var(--c-link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ---------- sticky header ---------- */
+#topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--header-h);
+  background: var(--c-structure);
+  color: #fff;
+  display: grid;
+  grid-template-columns: 56px 1fr auto 56px;
+  align-items: center;
+  z-index: 50;
+  font-family: var(--font-sans);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.18);
+}
+
+#topbar button,
+#topbar .iconbtn {
+  background: none;
+  border: 0;
+  color: #fff;
+  font: inherit;
+  font-size: 20px;
+  cursor: pointer;
+  height: 100%;
+  width: 100%;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+#topbar button:hover { background: rgba(255,255,255,0.08); }
+#topbar button:disabled { opacity: 0.35; cursor: default; }
+#topbar button:disabled:hover { background: none; }
+
+#topbar .title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: 0 0.6em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+
+#topbar .nav-group {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+#topbar .nav-group button {
+  width: 44px;
+  font-size: 22px;
+}
+
+/* In long mode, hide the chapter-level next/prev (they don't apply). */
+body[data-view="long"] #topbar .nav-group { display: none; }
+
+/* ---------- ToC drawer (hamburger overlay) ---------- */
+#toc-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 60;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+}
+#toc-backdrop.open { opacity: 1; pointer-events: auto; }
+
+#toc-drawer {
+  position: fixed;
+  top: 0; bottom: 0; left: 0;
+  width: min(360px, 88vw);
+  background: var(--c-bg);
+  z-index: 70;
+  transform: translateX(-100%);
+  transition: transform 0.22s ease;
+  box-shadow: 2px 0 18px rgba(0,0,0,0.25);
+  overflow-y: auto;
+  font-family: var(--font-sans);
+}
+#toc-drawer.open { transform: translateX(0); }
+
+#toc-drawer .toc-head {
+  background: var(--c-structure);
+  color: #fff;
+  padding: 0.9em 1.1em;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+#toc-drawer .toc-head button {
+  background: none;
+  border: 0;
+  color: #fff;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+#toc-drawer ol {
+  list-style: none;
+  margin: 0;
+  padding: 0.5em 0;
+  counter-reset: tocch;
+}
+#toc-drawer li { margin: 0; }
+#toc-drawer a {
+  display: block;
+  padding: 0.55em 1.1em;
+  color: var(--c-text);
+  border-left: 3px solid transparent;
+  font-size: 0.95rem;
+}
+#toc-drawer a:hover { background: var(--c-paper); text-decoration: none; }
+#toc-drawer a.current {
+  border-left-color: var(--c-structure);
+  background: var(--c-block-bg);
+  font-weight: 600;
+}
+#toc-drawer li.sub a { padding-left: 2.2em; font-size: 0.88rem; color: var(--c-muted); }
+
+#toc-drawer .toc-num {
+  display: inline-block;
+  width: 1.8em;
+  color: var(--c-structure-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- main column ---------- */
+main {
+  max-width: var(--col-width);
+  margin: 0 auto;
+  padding: 2.5em 1.5em 6em;
+}
+
+/* ---------- front matter ---------- */
+.front-matter {
+  text-align: left;
+  scroll-margin-top: calc(var(--header-h) + 1em);
+}
+
+.cover {
+  text-align: center;
+  padding: 1em 0 2.5em;
+  border-bottom: 1px solid var(--c-rule);
+}
+.cover .title {
+  font-size: 2.4em;
+  font-weight: 700;
+  color: var(--c-structure);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 0.2em 0 0.3em;
+}
+.cover .subtitle {
+  font-size: 1.2em;
+  color: var(--c-structure-soft);
+  margin: 0 0 1.4em;
+  font-style: italic;
+}
+.cover .authors {
+  font-size: 1.05em;
+  margin: 0.2em 0;
+}
+.cover .affiliation {
+  font-size: 0.9em;
+  color: var(--c-muted);
+  margin: 0.2em 0 0.6em;
+}
+.cover .date {
+  font-size: 0.9em;
+  color: var(--c-muted);
+  margin: 0.6em 0 0;
+}
+.cover .logos {
+  display: flex;
+  justify-content: center;
+  gap: 1.6em;
+  margin-top: 1.8em;
+}
+.cover .logos img { height: 56px; width: auto; }
+
+.abstract {
+  margin: 2em 0 2.5em;
+  padding: 0 1.5em;
+  font-size: 0.96em;
+  color: #2b2b2b;
+  border-left: 3px solid var(--c-structure);
+}
+.abstract h2 {
+  font-family: var(--font-sans);
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--c-structure);
+  margin: 0 0 0.5em;
+}
+
+.toc {
+  margin: 2.5em 0 3em;
+  padding: 1.4em 1.6em;
+  background: var(--c-bg);
+  border: 1px solid var(--c-rule);
+  border-radius: 4px;
+}
+.toc h2 {
+  margin: 0 0 0.6em;
+  font-family: var(--font-sans);
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--c-structure);
+}
+.toc ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.toc li { margin: 0.25em 0; }
+.toc a {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6em;
+  color: var(--c-text);
+  padding: 0.15em 0;
+}
+.toc a .toc-num {
+  color: var(--c-structure-soft);
+  font-variant-numeric: tabular-nums;
+  min-width: 2em;
+}
+.toc a .toc-fill {
+  flex: 1;
+  border-bottom: 1px dotted var(--c-rule);
+  transform: translateY(-0.3em);
+  margin: 0 0.3em;
+}
+.toc li.sub { padding-left: 1.6em; }
+.toc li.sub a { font-size: 0.92em; color: var(--c-muted); }
+
+/* ---------- chapter ---------- */
+.chapter {
+  margin: 0 0 4em;
+  scroll-margin-top: calc(var(--header-h) + 1em);
+}
+.chapter > h2 {
+  font-family: var(--font-sans);
+  color: var(--c-structure);
+  font-size: 1.8em;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.4em;
+  padding-bottom: 0.3em;
+  border-bottom: 2px solid var(--c-structure);
+  counter-reset: subsec;
+}
+.chapter > h3 {
+  font-family: var(--font-sans);
+  color: var(--c-structure);
+  font-size: 1.25em;
+  margin: 1.6em 0 0.4em;
+  scroll-margin-top: calc(var(--header-h) + 1em);
+}
+
+.chapter p { margin: 0.6em 0; text-align: justify; hyphens: auto; }
+.chapter ul, .chapter ol { padding-left: 1.5em; }
+.chapter li { margin: 0.3em 0; }
+
+/* ---------- text helpers (match slides.css) ---------- */
+.blue   { color: var(--c-blue); }
+.red    { color: var(--c-red); }
+.green  { color: var(--c-green); }
+.orange { color: var(--c-orange); }
+.muted  { color: var(--c-muted); }
+.bold   { font-weight: 700; }
+.center { text-align: center; }
+
+/* ---------- blocks (definition / alert / example) ---------- */
+.block {
+  margin: 1.2em 0;
+  border-radius: 4px;
+  overflow: hidden;
+  font-size: 0.96em;
+}
+.block > .block-title {
+  background: var(--c-block-title-bg);
+  color: #fff;
+  padding: 0.35em 0.8em;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  font-size: 0.92em;
+}
+.block > .block-body {
+  background: var(--c-block-bg);
+  padding: 0.7em 0.9em;
+}
+.block.alert   > .block-title { background: var(--c-alert-title-bg); }
+.block.alert   > .block-body  { background: var(--c-alert-body-bg); }
+.block.example > .block-title { background: var(--c-example-title-bg); }
+.block.example > .block-body  { background: var(--c-example-body-bg); }
+
+/* ---------- theorem-like (numbered by JS) ---------- */
+.theorem, .definition, .proposition, .lemma, .corollary, .remark {
+  margin: 1.2em 0;
+  padding: 0.6em 0.9em;
+  background: var(--c-block-bg);
+  border-left: 3px solid var(--c-structure);
+  border-radius: 0 4px 4px 0;
+  scroll-margin-top: calc(var(--header-h) + 1em);
+}
+.env-label {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  color: var(--c-structure);
+  margin-right: 0.4em;
+}
+/* italicize theorem-like body text (LaTeX convention) */
+.theorem, .proposition, .lemma, .corollary { font-style: italic; }
+.theorem .env-label, .proposition .env-label,
+.lemma .env-label, .corollary .env-label { font-style: normal; }
+
+.proof {
+  margin: 1em 0 1.4em;
+  padding-left: 0.9em;
+  border-left: 2px solid var(--c-rule);
+  font-size: 0.96em;
+}
+.proof-label {
+  font-style: italic;
+  font-weight: 600;
+  margin-right: 0.4em;
+}
+.proof-qed {
+  margin-left: 0.3em;
+  color: var(--c-muted);
+}
+
+/* ---------- cross-references (.ref) and citations (.cite) ---------- */
+.ref, .cite {
+  color: var(--c-link);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.ref:hover, .cite:hover { text-decoration: underline; }
+
+.ref-broken {
+  color: var(--c-red);
+  background: #fcecea;
+  padding: 0 0.25em;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+}
+
+/* highlight an anchored target so clicking a ref/cite makes the
+   destination obvious — the highlight fades on its own */
+:target.env-target,
+.bib > li:target {
+  animation: target-flash 1.6s ease-out 1;
+}
+@keyframes target-flash {
+  0%   { background: #fff4d6; }
+  100% { background: transparent; }
+}
+
+/* ---------- figures (numbered) ---------- */
+.fig-label {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  color: var(--c-structure);
+  margin-right: 0.4em;
+  font-style: normal;
+}
+
+/* ---------- figures ---------- */
+figure {
+  margin: 1.5em auto;
+  text-align: center;
+  scroll-margin-top: calc(var(--header-h) + 1em);
+}
+figure img, figure video {
+  max-width: 100%;
+  max-height: 420px;
+  object-fit: contain;
+}
+figcaption {
+  font-size: 0.85em;
+  color: var(--c-muted);
+  margin-top: 0.4em;
+  font-style: italic;
+}
+
+/* ---------- two-column inside a chapter ---------- */
+.cols {
+  display: grid;
+  gap: 1.4em;
+  margin: 1em 0;
+}
+.cols.c2 { grid-template-columns: 1fr 1fr; }
+.cols.c2-55-45 { grid-template-columns: 55fr 45fr; }
+.cols.c2-60-40 { grid-template-columns: 60fr 40fr; }
+@media (max-width: 700px) {
+  .cols, .cols.c2, .cols.c2-55-45, .cols.c2-60-40 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- code ---------- */
+code {
+  font-family: var(--font-mono);
+  background: #f4f0ec;
+  padding: 0.05em 0.3em;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+pre {
+  background: #f4f0ec;
+  padding: 0.8em 1em;
+  border-left: 3px solid var(--c-structure);
+  font-size: 0.85em;
+  overflow: auto;
+  border-radius: 0 3px 3px 0;
+}
+pre code { background: none; padding: 0; }
+
+/* ---------- math (MathJax serif) ---------- */
+mjx-container { font-family: var(--font-serif) !important; }
+mjx-container[display="true"] { margin: 0.8em 0; }
+
+/* ---------- chapter-level navigation footer (short mode) ---------- */
+.chapter-nav {
+  margin-top: 3em;
+  padding-top: 1.4em;
+  border-top: 1px solid var(--c-rule);
+  display: flex;
+  justify-content: space-between;
+  gap: 1em;
+  font-family: var(--font-sans);
+  font-size: 0.95em;
+}
+.chapter-nav a {
+  flex: 1;
+  padding: 0.9em 1em;
+  border: 1px solid var(--c-rule);
+  border-radius: 4px;
+  background: var(--c-bg);
+  display: block;
+}
+.chapter-nav a:hover {
+  border-color: var(--c-structure);
+  text-decoration: none;
+}
+.chapter-nav .label {
+  display: block;
+  font-size: 0.75em;
+  color: var(--c-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.2em;
+}
+.chapter-nav .ttl { color: var(--c-structure); font-weight: 600; }
+.chapter-nav .prev { text-align: left; }
+.chapter-nav .next { text-align: right; }
+.chapter-nav .spacer { flex: 1; }
+
+body[data-view="long"] .chapter-nav { display: none; }
+
+/* ---------- bibliography ---------- */
+ol.bib {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.95em;
+  counter-reset: bibcnt;
+}
+ol.bib > li {
+  position: relative;
+  padding: 0.4em 0.4em 0.4em 3em;
+  margin: 0.3em 0;
+  counter-increment: bibcnt;
+  scroll-margin-top: calc(var(--header-h) + 1em);
+  border-radius: 0 4px 4px 0;
+  text-align: left;
+  text-indent: 0;
+  hyphens: auto;
+}
+ol.bib > li::before {
+  content: "[" counter(bibcnt) "]";
+  position: absolute;
+  left: 0;
+  top: 0.4em;
+  width: 2.4em;
+  text-align: right;
+  font-family: var(--font-sans);
+  color: var(--c-structure);
+  font-weight: 600;
+}
+ol.bib > li:target {
+  background: #fff4d6;
+  border-left: 3px solid var(--c-structure);
+}
+
+/* ---------- list of numbered environments (ol.lone) ----------
+   Use:  <ol class="lone"></ol>                  all envs + figures
+         <ol class="lone" data-kind="theorem,lemma,corollary"></ol>
+                                                  filter by kind          */
+ol.lone {
+  list-style: none;
+  margin: 1em 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  font-size: 0.95em;
+}
+ol.lone > li {
+  margin: 0;
+  border-bottom: 1px dotted var(--c-rule);
+}
+ol.lone > li:last-child { border-bottom: 0; }
+ol.lone a {
+  display: grid;
+  grid-template-columns: 9em 1fr auto;
+  gap: 0.8em;
+  align-items: baseline;
+  padding: 0.45em 0.6em;
+  color: var(--c-text);
+  border-radius: 4px;
+}
+ol.lone a:hover {
+  background: var(--c-block-bg);
+  text-decoration: none;
+}
+.lone-label {
+  font-weight: 600;
+  color: var(--c-structure);
+}
+.lone-name {
+  color: var(--c-text);
+  font-style: italic;
+}
+.lone-key {
+  color: var(--c-muted);
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+.lone-empty {
+  color: var(--c-muted);
+  font-style: italic;
+  padding: 0.6em;
+}
+@media (max-width: 640px) {
+  ol.lone a {
+    grid-template-columns: 1fr;
+    gap: 0.2em;
+    padding: 0.55em 0.6em;
+  }
+}
+
+/* ---------- collapsible sections wrapping ol.lone ---------- */
+details.lone-section {
+  margin: 0.6em 0;
+  border: 1px solid var(--c-rule);
+  border-radius: 4px;
+  background: var(--c-bg);
+  overflow: hidden;
+}
+details.lone-section > summary {
+  list-style: none;            /* hide default ▶ marker (Firefox) */
+  cursor: pointer;
+  padding: 0.65em 1em;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  color: var(--c-structure);
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  user-select: none;
+}
+details.lone-section > summary::-webkit-details-marker { display: none; }
+details.lone-section > summary::before {
+  content: "▸";
+  font-size: 0.85em;
+  color: var(--c-structure-soft);
+  transition: transform 0.15s ease;
+  display: inline-block;
+}
+details.lone-section[open] > summary::before { transform: rotate(90deg); }
+details.lone-section > summary:hover { background: var(--c-block-bg); }
+details.lone-section[open] > summary {
+  border-bottom: 1px solid var(--c-rule);
+  background: var(--c-block-bg);
+}
+details.lone-section > ol.lone {
+  margin: 0;
+  padding: 0.3em 0.5em;
+}
+
+/* ---------- short-form view: only the active chapter is visible ---------- */
+body[data-view="short"] .chapter,
+body[data-view="short"] .front-matter {
+  display: none;
+}
+body[data-view="short"] .chapter.current,
+body[data-view="short"] .front-matter.current {
+  display: block;
+}
+body[data-view="short"] main {
+  max-width: var(--col-width);
+  padding: 2em 1.5em 5em;
+}
+
+/* ---------- print: long-form, no chrome ---------- */
+@media print {
+  body { padding-top: 0; }
+  #topbar, #toc-drawer, #toc-backdrop, .chapter-nav { display: none !important; }
+  body[data-view="short"] .chapter,
+  body[data-view="short"] .front-matter { display: block !important; }
+  .chapter { page-break-inside: avoid; }
+  .chapter > h2 { page-break-after: avoid; }
+}

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gradient Descent</title>
+
+    <!-- three.js from a CDN (https URLs work from file:// without a server) -->
+    <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  </head>
+
+  <body>
+    <!-- framework + algorithm load as classic scripts (also fine from file://) -->
+    <script src="canvas-template.js"></script>
+    <script src="gradient-descent.js"></script>
+
+    <!-- the only per-algorithm wiring you edit -->
+    <script type="module">
+      import * as THREE from 'three';
+      import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+
+      ThreeTemplate.useThree({THREE, OrbitControls});
+
+      const algo = new GradientDescent();
+      const viz = new ThreeTemplate.Visualizer(algo, {background: 0x111111});
+
+      // playback bar: reset · erase · [back] · [sub] · step · play  (+ keyboard)
+      viz.addPlayback({substeps: true, backward: true});
+
+      // status log (bottom-right)
+      const log = viz.addLogger();
+      log.addStatus('iter', () => algo.getIteration(), '%4d');
+      log.addStatus('phase', () => algo.getPhase(), '%s');
+      log.addStatus('f(x)', () => algo.getValue(), '%12.3e');
+      log.addStatus('|∇f|', () => algo.getGradNorm(), '%12.3e');
+
+      // hamburger menu with tabs
+      const menu = viz.addMenu();
+      const params = menu.addTab('Parameters');
+      params.addSlider('Step size', (x) => algo.setStepSize(x), {min: 0.01, max: 1, value: 0.25, step: 0.01, format: '%.2f'});
+      params.addSlider('Momentum', (x) => algo.setMomentum(x), {min: 0, max: 0.95, value: 0, step: 0.05, format: '%.2f'});
+      params.addCheckbox('Gradient arrow', (on) => algo.setArrowVisible(on), true);
+      params.addColor('Surface color', (hex) => algo.setSurfaceColor(hex), '#4fc3f7');
+
+      const start = menu.addTab('Start point');
+      start.addText('Moving a slider restarts the run.');
+      start.addSlider('x₀', (x) => {algo.setStart('x', x); viz.reset();}, {min: -3.5, max: 3.5, value: -3.0, step: 0.1, format: '%+.1f'});
+      start.addSlider('y₀', (y) => {algo.setStart('y', y); viz.reset();}, {min: -3.5, max: 3.5, value: 2.6, step: 0.1, format: '%+.1f'});
+
+      viz.start();
+    </script>
+  </body>
+
+</html>

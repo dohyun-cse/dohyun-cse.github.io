@@ -1,0 +1,763 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Algorithm Template — three.js</title>
+  <style>
+    :root {
+      --bg: #111;
+      --fg: #ddd;
+      --panel: rgba(20,20,22,0.92);
+      --panel-border: #333;
+      --accent: #4a90e2;
+      --accent-bg: #0056b3;
+      --btn: #2b2b2b;
+      --btn-hover: #3a3a3a;
+      --muted: #999;
+      --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    }
+    html, body {
+      margin: 0; padding: 0;
+      width: 100%; height: 100%;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+      overflow: hidden;
+    }
+    #canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+
+    /* ---------- playback controls (bottom center) ---------- */
+    #controls {
+      position: absolute;
+      bottom: 12px; left: 50%;
+      transform: translateX(-50%);
+      display: flex; gap: 4px;
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      padding: 5px;
+      border-radius: 7px;
+      z-index: 20;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+    }
+    #controls button {
+      background: var(--btn);
+      color: var(--fg);
+      border: 1px solid #444;
+      padding: 6px 11px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      min-width: 36px;
+      font-family: inherit;
+    }
+    #controls button:hover:not(:disabled) { background: var(--btn-hover); }
+    #controls button svg { display: block; width: 17px; height: 17px; }
+    #controls button:disabled { opacity: 0.4; cursor: default; }
+    #controls button.active {
+      background: var(--accent-bg);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    #controls .sep { width: 1px; background: #444; margin: 2px 3px; }
+
+    /* ---------- status log (bottom right) ---------- */
+    #status-log {
+      position: absolute;
+      bottom: 12px; right: 12px;
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 7px;
+      padding: 8px 10px;
+      z-index: 20;
+      min-width: 170px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+    }
+    #status-log .title {
+      font-size: 10px; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--muted);
+      margin-bottom: 5px;
+    }
+    #status-log table { border-collapse: collapse; width: 100%; }
+    #status-log td {
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 1px 0;
+    }
+    #status-log td.k { color: var(--muted); padding-right: 14px; }
+    #status-log td.v { text-align: right; white-space: pre; color: var(--fg); }
+
+    /* ---------- hamburger + side menu ---------- */
+    #hamburger {
+      position: absolute;
+      top: 12px; left: 12px;
+      z-index: 40;
+      width: 38px; height: 38px;
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 6px;
+      color: var(--fg);
+      font-size: 18px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+    }
+    #hamburger:hover { background: var(--btn-hover); }
+
+    #menu {
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      width: 300px;
+      background: var(--panel);
+      border-right: 1px solid var(--panel-border);
+      z-index: 35;
+      transform: translateX(-110%);
+      transition: transform 0.22s ease;
+      display: flex; flex-direction: column;
+      box-shadow: 2px 0 16px rgba(0,0,0,0.5);
+    }
+    #menu.open { transform: translateX(0); }
+
+    /* sticky tab header */
+    #menu-header {
+      position: sticky; top: 0;
+      flex: 0 0 auto;
+      background: var(--panel);
+      border-bottom: 1px solid var(--panel-border);
+      padding: 48px 8px 0 8px;
+    }
+    #menu-title {
+      position: absolute; top: 16px; left: 60px;
+      font-size: 14px; font-weight: 600;
+    }
+    #menu-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+    #menu-tabs .tab {
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--muted);
+      padding: 7px 10px;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: inherit;
+    }
+    #menu-tabs .tab:hover { color: var(--fg); }
+    #menu-tabs .tab.active { color: var(--fg); border-bottom-color: var(--accent); }
+
+    /* scrollable body */
+    #menu-body { flex: 1 1 auto; overflow-y: auto; padding: 14px; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* control widgets */
+    .ctrl { margin-bottom: 16px; }
+    .ctrl label.lbl {
+      display: flex; justify-content: space-between;
+      font-size: 12px; color: var(--fg); margin-bottom: 5px;
+    }
+    .ctrl label.lbl .val { font-family: var(--mono); color: var(--accent); }
+    .ctrl input[type=range] {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 4px; border-radius: 2px;
+      background: #444; outline: none;
+    }
+    .ctrl input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--accent); cursor: pointer;
+    }
+    .ctrl input[type=range]::-moz-range-thumb {
+      width: 14px; height: 14px; border: none; border-radius: 50%;
+      background: var(--accent); cursor: pointer;
+    }
+    .ctrl button.wbtn {
+      width: 100%;
+      background: var(--btn); color: var(--fg);
+      border: 1px solid #444; border-radius: 4px;
+      padding: 8px; cursor: pointer; font-size: 13px; font-family: inherit;
+    }
+    .ctrl button.wbtn:hover { background: var(--btn-hover); }
+    .ctrl select {
+      width: 100%; background: var(--btn); color: var(--fg);
+      border: 1px solid #444; border-radius: 4px; padding: 7px;
+      font-size: 13px; font-family: inherit;
+    }
+    .ctrl .row { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+    .ctrl .row input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); }
+    .ctrl .desc { font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.4; }
+    .section-title {
+      font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--muted); margin: 0 0 12px 0;
+    }
+  </style>
+
+  <!-- three.js from CDN: https URLs work from file:// without a local server -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+
+  <button id="hamburger" title="Menu">☰</button>
+  <nav id="menu">
+    <div id="menu-header">
+      <div id="menu-title">Controls</div>
+      <div id="menu-tabs"></div>
+    </div>
+    <div id="menu-body"></div>
+  </nav>
+
+  <div id="status-log">
+    <div class="title">Status</div>
+    <table><tbody id="status-rows"></tbody></table>
+  </div>
+
+  <div id="controls"></div>
+
+  <script type="module">
+  import * as THREE from 'three';
+  import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+  /* ============================================================
+   *  PART 1 — REUSABLE FRAMEWORK  (the template engine)
+   *  ----------------------------------------------------------
+   *  Decoupled from three.js. Drives any algorithm expressed as
+   *  a generator that yields once per *sub-step*, marking a
+   *  sub-step as the end of a *full step* with { full: true }.
+   * ============================================================ */
+
+  /* --- minimal C-style number formatter: %4d, %4.2f, %12.3e, ... --- */
+  function cFormat(spec, value) {
+    const m = /^%([-+0 ]*)(\d+)?(?:\.(\d+))?([diouxXeEfgGs%])$/.exec(spec);
+    if (!m) return String(value);
+    let [, flags, width, prec, conv] = m;
+    if (conv === '%') return '%';
+    width = width ? +width : 0;
+    prec  = prec !== undefined ? +prec : undefined;
+    const left = flags.includes('-');
+    const zero = flags.includes('0') && !left;
+    const plus = flags.includes('+');
+    const space = flags.includes(' ');
+    let num = Number(value), neg = num < 0, s;
+
+    switch (conv) {
+      case 'd': case 'i': case 'u':
+        s = Math.round(Math.abs(num)).toString(); break;
+      case 'x': s = Math.round(Math.abs(num)).toString(16); break;
+      case 'X': s = Math.round(Math.abs(num)).toString(16).toUpperCase(); break;
+      case 'o': s = Math.round(Math.abs(num)).toString(8); break;
+      case 'f':
+        s = Math.abs(num).toFixed(prec === undefined ? 6 : prec); break;
+      case 'e': case 'E':
+        s = Math.abs(num).toExponential(prec === undefined ? 6 : prec)
+              .replace(/e([+-])(\d)$/, 'e$10$2');      // 2-digit exponent
+        if (conv === 'E') s = s.toUpperCase();
+        break;
+      case 'g': case 'G': {
+        const p = prec === undefined ? 6 : (prec || 1);
+        s = Number(Math.abs(num).toPrecision(p)).toString();
+        if (conv === 'G') s = s.toUpperCase();
+        break;
+      }
+      case 's': default:
+        s = String(value); neg = false; break;
+    }
+    const sign = neg ? '-' : (plus ? '+' : (space ? ' ' : ''));
+    if (zero && conv !== 's') {
+      const pad = width - sign.length - s.length;
+      if (pad > 0) s = '0'.repeat(pad) + s;
+      return sign + s;
+    }
+    s = sign + s;
+    if (s.length < width) {
+      const pad = ' '.repeat(width - s.length);
+      s = left ? s + pad : pad + s;
+    }
+    return s;
+  }
+
+  class StatusLog {
+    constructor(fields) {            // fields: [{key,label,format}]
+      this.fields = fields;
+      this.cells = {};
+      const tbody = document.getElementById('status-rows');
+      tbody.innerHTML = '';
+      for (const f of fields) {
+        const tr = document.createElement('tr');
+        const k = document.createElement('td'); k.className = 'k'; k.textContent = f.label ?? f.key;
+        const v = document.createElement('td'); v.className = 'v'; v.textContent = '—';
+        tr.append(k, v); tbody.appendChild(tr);
+        this.cells[f.key] = v;
+      }
+    }
+    update(data) {
+      for (const f of this.fields) {
+        if (data && f.key in data && data[f.key] != null) {
+          this.cells[f.key].textContent = cFormat(f.format || '%s', data[f.key]);
+        }
+      }
+    }
+    clear() { for (const k in this.cells) this.cells[k].textContent = '—'; }
+  }
+
+  /* Builds slider / button / checkbox / select widgets bound to a params object. */
+  function buildWidget(spec, params, app) {
+    const wrap = document.createElement('div');
+    wrap.className = 'ctrl';
+    if (spec.type === 'slider') {
+      if (!(spec.key in params)) params[spec.key] = spec.value ?? spec.min ?? 0;
+      const lbl = document.createElement('label'); lbl.className = 'lbl';
+      const span = document.createElement('span'); span.textContent = spec.label ?? spec.key;
+      const valEl = document.createElement('span'); valEl.className = 'val';
+      const fmt = spec.format || '%g';
+      const input = document.createElement('input');
+      input.type = 'range';
+      input.min = spec.min; input.max = spec.max;
+      input.step = spec.step ?? 'any';
+      input.value = params[spec.key];
+      valEl.textContent = cFormat(fmt, +input.value);
+      lbl.append(span, valEl); wrap.append(lbl, input);
+      input.addEventListener('input', () => {
+        const v = +input.value;
+        params[spec.key] = v;
+        valEl.textContent = cFormat(fmt, v);
+        spec.onChange && spec.onChange(v, app);
+      });
+    } else if (spec.type === 'button') {
+      const b = document.createElement('button'); b.className = 'wbtn';
+      b.textContent = spec.label;
+      b.addEventListener('click', () => spec.action && spec.action(app));
+      wrap.append(b);
+    } else if (spec.type === 'checkbox') {
+      if (!(spec.key in params)) params[spec.key] = !!spec.value;
+      const row = document.createElement('label'); row.className = 'row';
+      const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = params[spec.key];
+      const t = document.createElement('span'); t.textContent = spec.label ?? spec.key;
+      row.append(cb, t); wrap.append(row);
+      cb.addEventListener('change', () => {
+        params[spec.key] = cb.checked;
+        spec.onChange && spec.onChange(cb.checked, app);
+      });
+    } else if (spec.type === 'select') {
+      if (!(spec.key in params)) params[spec.key] = spec.value ?? spec.options[0]?.value;
+      const lbl = document.createElement('label'); lbl.className = 'lbl';
+      lbl.innerHTML = `<span>${spec.label ?? spec.key}</span>`;
+      const sel = document.createElement('select');
+      for (const o of spec.options) {
+        const opt = document.createElement('option');
+        opt.value = o.value; opt.textContent = o.label ?? o.value;
+        if (o.value === params[spec.key]) opt.selected = true;
+        sel.appendChild(opt);
+      }
+      wrap.append(lbl, sel);
+      sel.addEventListener('change', () => {
+        params[spec.key] = sel.value;
+        spec.onChange && spec.onChange(sel.value, app);
+      });
+    } else if (spec.type === 'html') {
+      wrap.innerHTML = spec.html;
+    }
+    if (spec.desc) {
+      const d = document.createElement('div'); d.className = 'desc'; d.textContent = spec.desc;
+      wrap.append(d);
+    }
+    return wrap;
+  }
+
+  /* inline SVG icons (stroke = currentColor so they inherit button colour;
+     filled shapes set fill="currentColor" stroke="none" per element) */
+  const _svg = body =>
+    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${body}</svg>`;
+  const ICONS = {
+    // refresh / reset (circular arrow)
+    reset: _svg('<path d="M21.5 2v6h-6"/><path d="M21.34 15.57a10 10 0 1 1-.57-8.38"/>'),
+    // eraser
+    erase: _svg('<path d="m7 21-4.3-4.3a1.7 1.7 0 0 1 0-2.4l9.3-9.3a1.7 1.7 0 0 1 2.4 0l5.6 5.6a1.7 1.7 0 0 1 0 2.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/>'),
+    // debugger "step over" (arc + arrowhead + dot)
+    sub: _svg('<path d="M4 13a8 6 0 0 1 15-2.5"/><polyline points="20 4 20 9 15 9"/><circle cx="12" cy="19" r="1.7" fill="currentColor" stroke="none"/>'),
+    // skip to next full step
+    full: _svg('<polygon points="6 4 15 12 6 20" fill="currentColor" stroke="none"/><line x1="18" y1="5" x2="18" y2="19"/>'),
+    play:  _svg('<polygon points="7 4 20 12 7 20" fill="currentColor" stroke="none"/>'),
+    pause: _svg('<rect x="6" y="5" width="4" height="14" fill="currentColor" stroke="none"/><rect x="14" y="5" width="4" height="14" fill="currentColor" stroke="none"/>'),
+  };
+
+  class AlgoApp {
+    constructor(cfg) {
+      this.cfg = cfg;
+      this.params = Object.assign({}, cfg.defaults);
+      this.ctx = {};                 // free-form state shared with the algorithm
+      this.gen = null;               // active generator
+      this.done = false;
+      this.playing = false;
+      this._acc = 0;                 // play-mode time accumulator
+
+      // playback settings (overridable from a menu tab)
+      this.params.playSpeed = cfg.playback?.speed ?? 4;   // steps / second
+      this.params.playMode  = cfg.playback?.mode  ?? 'full';
+
+      document.title = cfg.title || document.title;
+      const mt = document.getElementById('menu-title');
+      if (mt) mt.textContent = cfg.title || 'Controls';
+
+      this.status = new StatusLog(cfg.status || []);
+      this._buildControls();
+      this._buildMenu();
+      this.reset();
+    }
+
+    /* ---- playback control bar ---- */
+    _buildControls() {
+      const bar = document.getElementById('controls');
+      bar.innerHTML = '';
+      const defaults = [
+        { id: 'reset', label: ICONS.reset, title: 'Reset (rebuild & erase trajectory)', action: a => a.reset() },
+        { id: 'erase', label: ICONS.erase, title: 'Erase trajectory', action: a => a.clearTrail() },
+        { sep: true },
+        { id: 'sub',   label: ICONS.sub,  title: 'Step over (next sub-step)', action: a => a.subStep() },
+        { id: 'full',  label: ICONS.full, title: 'Next full step', action: a => a.fullStep() },
+        { sep: true },
+        { id: 'play',  label: ICONS.play, title: 'Play / pause (run without stopping)', action: a => a.togglePlay() },
+      ];
+      const list = this.cfg.controls || defaults;
+      this._btns = {};
+      for (const c of list) {
+        if (c.sep) { const s = document.createElement('div'); s.className = 'sep'; bar.appendChild(s); continue; }
+        const b = document.createElement('button');
+        b.innerHTML = c.label; b.title = c.title || '';
+        b.addEventListener('click', () => c.action(this));
+        bar.appendChild(b);
+        if (c.id) this._btns[c.id] = b;
+      }
+    }
+
+    /* ---- hamburger menu: sticky tabs + scrollable body ---- */
+    _buildMenu() {
+      const tabsEl = document.getElementById('menu-tabs');
+      const bodyEl = document.getElementById('menu-body');
+      tabsEl.innerHTML = ''; bodyEl.innerHTML = '';
+
+      const tabs = (this.cfg.tabs || []).slice();
+      // always-present Playback tab unless the user supplied one with id 'playback'
+      if (!tabs.some(t => t.id === 'playback')) {
+        tabs.push({
+          id: 'playback', label: 'Playback',
+          controls: [
+            { type: 'slider', key: 'playSpeed', label: 'Speed (steps/s)',
+              min: 0.5, max: 60, step: 0.5, value: this.params.playSpeed, format: '%.1f' },
+            { type: 'select', key: 'playMode', label: 'Play advances by',
+              value: this.params.playMode,
+              options: [{ value: 'full', label: 'Full step' }, { value: 'sub', label: 'Sub-step' }] },
+          ],
+        });
+      }
+
+      this._panels = {};
+      tabs.forEach((tab, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'tab' + (i === 0 ? ' active' : '');
+        btn.textContent = tab.label || tab.id;
+        btn.addEventListener('click', () => this._showTab(tab.id));
+        tabsEl.appendChild(btn);
+
+        const panel = document.createElement('div');
+        panel.className = 'tab-panel' + (i === 0 ? ' active' : '');
+        panel.dataset.tab = tab.id;
+        if (tab.title) {
+          const t = document.createElement('div'); t.className = 'section-title'; t.textContent = tab.title;
+          panel.appendChild(t);
+        }
+        for (const w of (tab.controls || [])) panel.appendChild(buildWidget(w, this.params, this));
+        bodyEl.appendChild(panel);
+        this._panels[tab.id] = { btn, panel };
+      });
+
+      const burger = document.getElementById('hamburger');
+      const menu = document.getElementById('menu');
+      burger.addEventListener('click', () => menu.classList.toggle('open'));
+    }
+    _showTab(id) {
+      for (const k in this._panels) {
+        const on = k === id;
+        this._panels[k].btn.classList.toggle('active', on);
+        this._panels[k].panel.classList.toggle('active', on);
+      }
+    }
+
+    /* ---- engine: driving the algorithm generator ---- */
+    reset() {
+      this.pause();
+      this.cfg.teardown && this.cfg.teardown(this.ctx, this);   // dispose previous run's objects
+      this.done = false;
+      this.ctx = {};
+      this.status.clear();
+      this.cfg.setup && this.cfg.setup(this.ctx, this);
+      this.gen = this.cfg.algorithm(this.ctx, this);
+      this.clearTrail();             // reset also erases the trajectory
+      this._updateButtons();
+    }
+
+    clearTrail() { this.cfg.clearTrail && this.cfg.clearTrail(this.ctx, this); }
+
+    _pull() {                        // advance one sub-step; returns yielded value or null when done
+      if (this.done || !this.gen) return null;
+      const { value, done } = this.gen.next();
+      if (done) { this.done = true; this.pause(); this._updateButtons(); return null; }
+      if (value && value.status) this.status.update(value.status);
+      this.cfg.onStep && this.cfg.onStep(value, this.ctx, this);
+      return value;
+    }
+    subStep() { return this._pull(); }
+    fullStep() {                     // pull sub-steps until one marks the full-step boundary
+      let v, guard = 0;
+      do { v = this._pull(); guard++; } while (v && !v.full && guard < 100000);
+      return v;
+    }
+
+    play()  { if (!this.done) { this.playing = true;  this._acc = 0; this._updateButtons(); } }
+    pause() { this.playing = false; this._updateButtons(); }
+    togglePlay() { this.playing ? this.pause() : this.play(); }
+
+    _updateButtons() {
+      const b = this._btns || {};
+      if (b.play) {
+        b.play.innerHTML = this.playing ? ICONS.pause : ICONS.play;
+        b.play.classList.toggle('active', this.playing);
+        b.play.disabled = this.done;
+      }
+      if (b.sub)  b.sub.disabled  = this.done;
+      if (b.full) b.full.disabled = this.done;
+    }
+
+    /* called every animation frame by the render loop */
+    tick(dt) {
+      if (this.playing && !this.done) {
+        this._acc += dt;
+        const interval = 1 / Math.max(0.1, this.params.playSpeed);
+        while (this._acc >= interval && this.playing && !this.done) {
+          this._acc -= interval;
+          this.params.playMode === 'sub' ? this.subStep() : this.fullStep();
+        }
+      }
+      this.cfg.onFrame && this.cfg.onFrame(this.ctx, this, dt);
+    }
+  }
+
+  /* ============================================================
+   *  PART 2 — THREE.JS SCENE  (shared boilerplate)
+   * ============================================================ */
+  const canvas = document.getElementById('canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x111111);
+  const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+  camera.position.set(5, 5, 7);
+  const controls = new OrbitControls(camera, canvas);
+  controls.enableDamping = true;
+  scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+  const dir = new THREE.DirectionalLight(0xffffff, 0.9); dir.position.set(5, 10, 7); scene.add(dir);
+
+  function resize() {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    if (canvas.width !== w || canvas.height !== h) {
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h; camera.updateProjectionMatrix();
+    }
+  }
+  window.addEventListener('resize', resize);
+
+  /* ============================================================
+   *  PART 3 — THE APPLICATION  (edit this for your algorithm)
+   *  ----------------------------------------------------------
+   *  Demo: gradient descent on a bumpy surface z = f(x,y).
+   *  Each full step = one iteration; sub-steps = (1) compute
+   *  gradient, (2) take the descent step.
+   * ============================================================ */
+  const HS = 1.0;                              // height (z) scale for display
+  const f  = (x, y) => 0.2 * (x*x + y*y) + 0.6 * Math.sin(1.5*x) * Math.cos(1.5*y);
+  const fx = (x, y) => 0.4*x + 0.9 * Math.cos(1.5*x) * Math.cos(1.5*y);
+  const fy = (x, y) => 0.4*y - 0.9 * Math.sin(1.5*x) * Math.sin(1.5*y);
+  const world = (x, y) => new THREE.Vector3(x, f(x, y) * HS, y);   // (x,y)->scene(x,z), height->scene y
+
+  // surface mesh, coloured by height
+  function makeSurface() {
+    const N = 80, R = 4;
+    const geo = new THREE.PlaneGeometry(2*R, 2*R, N, N);
+    geo.rotateX(-Math.PI / 2);                 // lie in x-z plane
+    const pos = geo.attributes.position;
+    const col = [];
+    let zmin = Infinity, zmax = -Infinity;
+    const hs = [];
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i), y = pos.getZ(i), h = f(x, y);
+      hs.push(h); zmin = Math.min(zmin, h); zmax = Math.max(zmax, h);
+      pos.setY(i, h * HS);
+    }
+    const c1 = new THREE.Color(0x14315c), c2 = new THREE.Color(0x4fc3f7);
+    for (let i = 0; i < pos.count; i++) {
+      const t = (hs[i] - zmin) / (zmax - zmin || 1);
+      const c = c1.clone().lerp(c2, t);
+      col.push(c.r, c.g, c.b);
+    }
+    geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+    geo.computeVertexNormals();
+    const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
+      vertexColors: true, flatShading: false, roughness: 0.9, side: THREE.DoubleSide,
+    }));
+    const wire = new THREE.LineSegments(
+      new THREE.WireframeGeometry(geo),
+      new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.08 }));
+    const g = new THREE.Group(); g.add(mesh, wire);
+    return g;
+  }
+
+  const app = new AlgoApp({
+    title: 'Gradient Descent',
+
+    // status log: name + C-style format per value
+    status: [
+      { key: 'iter',  label: 'iter',  format: '%4d'    },
+      { key: 'phase', label: 'phase', format: '%s'     },
+      { key: 'f',     label: 'f(x)',  format: '%12.3e' },
+      { key: 'gnorm', label: '|∇f|',  format: '%12.3e' },
+      { key: 'lr',    label: 'lr',    format: '%6.3f'  },
+    ],
+
+    // hamburger menu tabs (a "Playback" tab is appended automatically)
+    tabs: [
+      {
+        id: 'params', label: 'Parameters', title: 'Algorithm',
+        controls: [
+          { type: 'slider', key: 'lr', label: 'Learning rate', min: 0.01, max: 1.0, step: 0.01, value: 0.25, format: '%.2f' },
+          { type: 'slider', key: 'momentum', label: 'Momentum', min: 0, max: 0.95, step: 0.05, value: 0.0, format: '%.2f' },
+          { type: 'slider', key: 'x0', label: 'Start x', min: -3.5, max: 3.5, step: 0.1, value: -3.0, format: '%+.1f',
+            onChange: (_, a) => a.reset() },
+          { type: 'slider', key: 'y0', label: 'Start y', min: -3.5, max: 3.5, step: 0.1, value: 2.6, format: '%+.1f',
+            onChange: (_, a) => a.reset() },
+          { type: 'checkbox', key: 'showGrad', label: 'Show gradient arrow', value: true,
+            onChange: (v, a) => { if (a.ctx.arrow) a.ctx.arrow.visible = v; } },
+          { type: 'button', label: 'Reset run', action: a => a.reset() },
+          { type: 'button', label: 'Clear trajectory', action: a => a.clearTrail() },
+        ],
+      },
+    ],
+
+    playback: { mode: 'full', speed: 4 },
+
+    // wipe the visited trail but keep current position & iteration count
+    clearTrail(ctx) {
+      if (!ctx.marker || !ctx.trail) return;
+      ctx.trailPts = [ctx.marker.position.clone()];
+      ctx.trail.geometry.setFromPoints(ctx.trailPts);
+    },
+
+    // remove & free the previous run's objects (called with the OLD ctx)
+    teardown(ctx) {
+      if (!ctx._group) return;
+      scene.remove(ctx._group);
+      ctx._group.traverse(o => {
+        o.geometry && o.geometry.dispose();
+        if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => m.dispose());
+      });
+    },
+
+    // build the scene once per reset
+    setup(ctx, a) {
+      const group = new THREE.Group(); ctx._group = group; scene.add(group);
+      group.add(makeSurface());
+
+      const x = a.params.x0, y = a.params.y0;
+      ctx.pos = new THREE.Vector2(x, y);
+      ctx.vel = new THREE.Vector2(0, 0);
+      ctx.iter = 0;
+
+      // current-point marker
+      ctx.marker = new THREE.Mesh(
+        new THREE.SphereGeometry(0.12, 24, 24),
+        new THREE.MeshStandardMaterial({ color: 0xffeb3b, emissive: 0x554400 }));
+      ctx.marker.position.copy(world(x, y));
+      group.add(ctx.marker);
+
+      // trail of visited points
+      ctx.trailPts = [world(x, y)];
+      ctx.trail = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(ctx.trailPts),
+        new THREE.LineBasicMaterial({ color: 0xff5252 }));
+      group.add(ctx.trail);
+
+      // gradient arrow
+      ctx.arrow = new THREE.ArrowHelper(new THREE.Vector3(1,0,0), ctx.marker.position, 1, 0xff5252, 0.25, 0.15);
+      ctx.arrow.visible = a.params.showGrad;
+      group.add(ctx.arrow);
+
+      a.status.update({ iter: 0, phase: 'init', f: f(x,y), gnorm: Math.hypot(fx(x,y), fy(x,y)), lr: a.params.lr });
+    },
+
+    // the algorithm as a generator: yield once per sub-step
+    *algorithm(ctx, a) {
+      const tol = 1e-3, maxIter = 500;
+      while (ctx.iter < maxIter) {
+        const x = ctx.pos.x, y = ctx.pos.y;
+        const gx = fx(x, y), gy = fy(x, y);
+        const gnorm = Math.hypot(gx, gy);
+
+        // --- sub-step 1: compute gradient (show descent arrow) ---
+        const dir3 = new THREE.Vector3(-gx, 0, -gy);
+        if (dir3.lengthSq() > 1e-9) {
+          ctx.arrow.position.copy(ctx.marker.position);
+          ctx.arrow.setDirection(dir3.clone().normalize());
+          ctx.arrow.setLength(Math.min(1.5, 0.5 + gnorm), 0.25, 0.15);
+        }
+        yield { full: false, status: { iter: ctx.iter, phase: 'grad', f: f(x,y), gnorm, lr: a.params.lr } };
+
+        if (gnorm < tol) {
+          yield { full: true, status: { iter: ctx.iter, phase: 'converged', f: f(x,y), gnorm, lr: a.params.lr } };
+          return;
+        }
+
+        // --- sub-step 2: take the (momentum) descent step ---
+        ctx.vel.set(
+          a.params.momentum * ctx.vel.x - a.params.lr * gx,
+          a.params.momentum * ctx.vel.y - a.params.lr * gy);
+        ctx.pos.add(ctx.vel);
+        // keep inside the domain
+        ctx.pos.x = Math.max(-4, Math.min(4, ctx.pos.x));
+        ctx.pos.y = Math.max(-4, Math.min(4, ctx.pos.y));
+        ctx.iter++;
+
+        const np = world(ctx.pos.x, ctx.pos.y);
+        ctx.marker.position.copy(np);
+        ctx.trailPts.push(np.clone());
+        ctx.trail.geometry.setFromPoints(ctx.trailPts);
+
+        yield { full: true, status: {
+          iter: ctx.iter, phase: 'update',
+          f: f(ctx.pos.x, ctx.pos.y),
+          gnorm: Math.hypot(fx(ctx.pos.x, ctx.pos.y), fy(ctx.pos.x, ctx.pos.y)),
+          lr: a.params.lr } };
+      }
+    },
+  });
+
+  /* ============================================================
+   *  PART 4 — render loop
+   * ============================================================ */
+  let last = performance.now();
+  function loop(now) {
+    const dt = Math.min(0.1, (now - last) / 1000); last = now;
+    resize();
+    app.tick(dt);
+    controls.update();
+    renderer.render(scene, camera);
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+  </script>
+</body>
+</html>

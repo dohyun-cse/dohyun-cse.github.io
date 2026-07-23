@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bregman divergence — single vs multi material</title>
+<style>
+  html,body{margin:0;height:100%;background:transparent;overflow:hidden;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    color:#4a3a2a;-webkit-font-smoothing:antialiased;}
+  body{display:flex;flex-direction:column;}
+  #banner{text-align:center;font-weight:700;font-size:18px;padding:8px 0 4px;min-height:24px;}
+  #banner .n{display:inline-block;width:24px;height:24px;line-height:24px;border-radius:50%;
+    color:#fff;margin-right:8px;font-size:15px;text-align:center;vertical-align:middle;}
+  .wrap{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:22px;padding:2px 12px 6px;
+    box-sizing:border-box;min-height:0;}
+  .panel{display:flex;flex-direction:column;min-width:0;}
+  .ttl{font-weight:700;color:#0056B3;font-size:14px;text-align:center;margin-bottom:3px;}
+  .stage{flex:1;background:#fbf8f4;border-radius:10px;box-shadow:0 1px 6px rgba(0,0,0,.08);
+    overflow:hidden;min-height:0;position:relative;}
+  svg,canvas{display:block;width:100%;height:100%;touch-action:none;}
+  .cap{font-size:12px;color:#6b5f52;text-align:center;margin-top:5px;line-height:1.3;}
+  .cap b{color:#4a3a2a;}
+</style>
+</head>
+<body>
+<div id="banner"></div>
+<div class="wrap">
+  <div class="panel">
+    <div class="ttl">Single material · box&nbsp;[0,1]</div>
+    <div class="stage"><svg id="svgA" viewBox="0 0 480 300" preserveAspectRatio="xMidYMid meet"></svg></div>
+    <div class="cap"><b>Fermi–Dirac entropy R.</b> Slope diverges at the walls → iterates stay in [0,1].</div>
+  </div>
+  <div class="panel">
+    <div class="ttl">Multiple materials · simplex&nbsp;Δ²</div>
+    <div class="stage"><canvas id="cB"></canvas></div>
+    <div class="cap"><b>Gibbs entropy surface</b> over the 3-material simplex. <i>Drag to rotate.</i></div>
+  </div>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const BLUE=0x0056B3, RED=0xFA2D19, GREEN=0x1E8449, INK=0x4a3a2a, GOLD=0x8a6d1f;
+const clamp=(v,a,b)=>v<a?a:(v>b?b:v);
+const lerp=(a,b,t)=>a+(b-a)*t;
+const ease=x=>{x=clamp(x,0,1);return x*x*(3-2*x);};
+const eps=1e-4;
+const Rs =p=>{p=clamp(p,eps,1-eps);return p*Math.log(p)+(1-p)*Math.log(1-p);};
+const Rsd=p=>{p=clamp(p,eps,1-eps);return Math.log(p/(1-p));};
+const Rm =(a,b,c)=>{a=clamp(a,eps,1);b=clamp(b,eps,1);c=clamp(c,eps,1);
+  return a*Math.log(a)+b*Math.log(b)+c*Math.log(c);};
+
+/* ───── shared staged clock: ① pick → ② tangent → ③ divergence ───── */
+const T1=2.0,T2=2.4,T3=3.6,HOLD=0.7,CYCLE=T1+T2+T3+HOLD;
+function anim(t){
+  let tt=t%CYCLE, refO=1,tanE=1,qO=1,qU=1,idx=2;
+  if(tt<T1){idx=0;refO=ease(tt/T1);tanE=0;qO=0;qU=0;}
+  else if(tt<T1+T2){idx=1;tanE=ease((tt-T1)/T2);qO=0;qU=0;}
+  else if(tt<T1+T2+T3){idx=2;qU=ease((tt-T1-T2)/T3);qO=ease(Math.min((tt-T1-T2)/0.5,1));}
+  return {refO,tanE,qO,qU,idx};
+}
+const BAN=[{n:'①',t:'Pick a reference point',c:'#0056B3'},
+           {n:'②',t:'Draw its tangent (supporting line / plane)',c:'#8a6d1f'},
+           {n:'③',t:'Bregman divergence = the gap to the tangent',c:'#FA2D19'}];
+const banner=document.getElementById('banner'); let lastIdx=-1;
+function setBanner(i){if(i===lastIdx)return;lastIdx=i;const b=BAN[i];
+  banner.innerHTML=`<span class="n" style="background:${b.c}">${b.n}</span>${b.t}`;}
+
+/* ══════════════ LEFT · 2-D SVG plot ══════════════ */
+const NS='http://www.w3.org/2000/svg';
+const svg=document.getElementById('svgA');
+function E(tag,a){const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);return e;}
+// RELATIVE: the viewBox is the MEASURED container size (px), so 1 unit = 1 px,
+// no aspect math, no letterbox, no overflow. Every position, font size and stroke
+// width is a FRACTION of the measured cw × ch — fills any venue resolution.
+let cw=480, ch=300;
+const RMIN=-0.72,RMAX=0.02;
+const mLp=0.07,mRp=0.07,mTp=0.08,mBp=0.20;      // fractional margins (room for x/Dᵣ labels)
+const sx=p=>cw*mLp+p*cw*(1-mLp-mRp);
+const sy=v=>ch*mTp+(RMAX-v)/(RMAX-RMIN)*ch*(1-mTp-mBp);
+const y0=0.32, Tang=p=>Rs(y0)+Rsd(y0)*(p-y0);
+const wallA=E('line',{stroke:'#e3b8b1','stroke-dasharray':'5 5'});
+const wallB=E('line',{stroke:'#e3b8b1','stroke-dasharray':'5 5'});
+const baseL=E('line',{stroke:'#e0d6c8'});
+const curve=E('path',{fill:'none',stroke:'#0056B3','stroke-linecap':'round','stroke-linejoin':'round'});
+const rlab=E('text',{fill:'#9c8f82','font-style':'italic'});rlab.textContent='R(ρ)';
+const l0=E('text',{'text-anchor':'middle',fill:'#9c8f82'});l0.textContent='ρ = 0';
+const l1=E('text',{'text-anchor':'middle',fill:'#9c8f82'});l1.textContent='ρ = 1';
+const tangent=E('line',{stroke:'#8a7d6d','stroke-linecap':'round'});
+const gap=E('line',{stroke:'#FA2D19','stroke-linecap':'round'});
+const refDot=E('circle',{fill:'#4a3a2a'});
+const qDot=E('circle',{fill:'#0056B3'});
+const yLab=E('text',{'text-anchor':'middle',fill:'#4a3a2a','font-weight':'700'});yLab.textContent='y';
+const xLab=E('text',{'text-anchor':'middle',fill:'#0056B3','font-weight':'700'});xLab.textContent='x';
+const dLab=E('text',{fill:'#FA2D19','font-weight':'700'});dLab.textContent='Dᵣ';
+[wallA,wallB,baseL,curve,rlab,l0,l1,tangent,gap,refDot,qDot,yLab,xLab,dLab].forEach(e=>svg.appendChild(e));
+function curveD(){let d='';for(let i=0;i<=180;i++){const p=0.001+i/180*0.998;d+=(i?'L ':'M ')+sx(p).toFixed(1)+' '+sy(Rs(p)).toFixed(1)+' ';}return d;}
+function layoutA(){
+  const st=svg.parentElement, w=st.clientWidth, h=st.clientHeight; if(!w||!h)return;
+  cw=w; ch=h; svg.setAttribute('viewBox',`0 0 ${cw} ${ch}`);
+  const fBig=ch*0.055, fSm=ch*0.042;
+  wallA.setAttribute('x1',sx(0));wallA.setAttribute('y1',sy(RMAX));wallA.setAttribute('x2',sx(0));wallA.setAttribute('y2',sy(RMIN));
+  wallB.setAttribute('x1',sx(1));wallB.setAttribute('y1',sy(RMAX));wallB.setAttribute('x2',sx(1));wallB.setAttribute('y2',sy(RMIN));
+  baseL.setAttribute('x1',sx(0));baseL.setAttribute('y1',sy(0));baseL.setAttribute('x2',sx(1));baseL.setAttribute('y2',sy(0));
+  [wallA,wallB].forEach(e=>e.setAttribute('stroke-width',Math.max(1,ch*0.004)));
+  baseL.setAttribute('stroke-width',Math.max(1,ch*0.003));
+  curve.setAttribute('stroke-width',Math.max(2,ch*0.008)); curve.setAttribute('d',curveD());
+  tangent.setAttribute('stroke-width',Math.max(1.4,ch*0.005));
+  gap.setAttribute('stroke-width',Math.max(2,ch*0.009));
+  refDot.setAttribute('r',ch*0.016); qDot.setAttribute('r',ch*0.016);
+  rlab.setAttribute('font-size',fSm);rlab.setAttribute('x',sx(0)+cw*0.012);rlab.setAttribute('y',sy(RMAX)-ch*0.02);
+  l0.setAttribute('font-size',fSm);l0.setAttribute('x',sx(0));l0.setAttribute('y',ch-ch*0.02);
+  l1.setAttribute('font-size',fSm);l1.setAttribute('x',sx(1));l1.setAttribute('y',ch-ch*0.02);
+  [yLab,xLab,dLab].forEach(e=>e.setAttribute('font-size',fBig));
+}
+
+function drawA(A){
+  const xq=y0+A.qU*(0.60-y0), gy1=sy(Tang(xq)), gy2=sy(Rs(xq));
+  // supporting line: grows from y out past both frame edges (SVG clips it).
+  const eL=lerp(y0,-0.14,A.tanE), eR=lerp(y0,1.14,A.tanE);
+  tangent.setAttribute('x1',sx(eL));tangent.setAttribute('y1',sy(Tang(eL)));
+  tangent.setAttribute('x2',sx(eR));tangent.setAttribute('y2',sy(Tang(eR)));
+  tangent.setAttribute('opacity',A.tanE);
+  refDot.setAttribute('cx',sx(y0));refDot.setAttribute('cy',sy(Rs(y0)));refDot.setAttribute('opacity',A.refO);
+  yLab.setAttribute('x',sx(y0));yLab.setAttribute('y',sy(Rs(y0))+ch*0.075);yLab.setAttribute('opacity',A.refO);
+  gap.setAttribute('x1',sx(xq));gap.setAttribute('y1',gy1);gap.setAttribute('x2',sx(xq));gap.setAttribute('y2',gy2);
+  gap.setAttribute('opacity',A.qO);
+  qDot.setAttribute('cx',sx(xq));qDot.setAttribute('cy',gy2);qDot.setAttribute('opacity',A.qO);
+  xLab.setAttribute('x',sx(xq));xLab.setAttribute('y',gy2-ch*0.03);xLab.setAttribute('opacity',A.qO);
+  dLab.setAttribute('x',sx(xq)+cw*0.02);dLab.setAttribute('y',(gy1+gy2)/2+ch*0.018);dLab.setAttribute('opacity',A.qO);
+}
+
+/* ══════════════ RIGHT · 3-D Three.js surface ══════════════ */
+function ramp(t){t=clamp(t,0,1);const s=Math.pow(t,0.72);
+  return new THREE.Color(lerp(0.96,0.04,s),lerp(0.93,0.27,s),lerp(0.88,0.66,s));}
+function label3(text,colorHex,h){
+  const fs=72,pad=10,m=document.createElement('canvas').getContext('2d');
+  m.font='bold '+fs+'px -apple-system,Arial';const w=Math.ceil(m.measureText(text).width)+pad*2,hh=fs+pad*2;
+  const c=document.createElement('canvas');c.width=w;c.height=hh;const g=c.getContext('2d');
+  g.font='bold '+fs+'px -apple-system,Arial';g.textAlign='center';g.textBaseline='middle';
+  g.fillStyle='#'+colorHex.toString(16).padStart(6,'0');g.fillText(text,w/2,hh/2);
+  const tex=new THREE.CanvasTexture(c);tex.anisotropy=8;
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false}));
+  sp.scale.set(h*w/hh,h,1);return sp;
+}
+const canvas=document.getElementById('cB');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+const scene=new THREE.Scene();
+scene.add(new THREE.AmbientLight(0xffffff,.78));
+const dl1=new THREE.DirectionalLight(0xffffff,.8);dl1.position.set(3,6,4);scene.add(dl1);
+const dl2=new THREE.DirectionalLight(0xffffff,.22);dl2.position.set(-4,2,-3);scene.add(dl2);
+const cam=new THREE.PerspectiveCamera(40,1,.1,100);cam.position.set(3.9,1.5,4.4);
+const controls=new OrbitControls(cam,canvas);
+controls.enableDamping=true;controls.dampingFactor=.08;controls.autoRotate=true;
+controls.autoRotateSpeed=.7;controls.enablePan=false;controls.minDistance=3.4;controls.maxDistance=9;
+controls.target.set(0,-0.58,0);
+
+const RAD=1.55,HS=1.35;
+const P=[new THREE.Vector2(0,-RAD),new THREE.Vector2(-RAD*0.8660,RAD*0.5),new THREE.Vector2(RAD*0.8660,RAD*0.5)];
+const xz=(a,b,c)=>new THREE.Vector2(a*P[0].x+b*P[1].x+c*P[2].x,a*P[0].y+b*P[1].y+c*P[2].y);
+const rk=[0.5,0.3,0.2], fk=Rm(rk[0],rk[1],rk[2]);
+const g1=Math.log(rk[0]/rk[2]), g2=Math.log(rk[1]/rk[2]);
+const plane=(a,b)=>fk+g1*(a-rk[0])+g2*(b-rk[1]);
+const KL=(a,b,c)=>{a=clamp(a,eps,1);b=clamp(b,eps,1);c=clamp(c,eps,1);
+  return a*Math.log(a/rk[0])+b*Math.log(b/rk[1])+c*Math.log(c/rk[2]);};
+// surface
+const N=54,pos=[],col=[],idx=[],id=(i,j)=>i*(N+1)+j;
+for(let i=0;i<=N;i++)for(let j=0;j<=N;j++){const a=i/N,b=j/N,c=1-a-b;const q=xz(a,b,c);
+  pos.push(q.x,Rm(a,b,c)*HS,q.y);const cc=ramp(clamp(KL(a,b,c)/1.0,0,1));col.push(cc.r,cc.g,cc.b);}
+const ins=(i,j)=>i+j<=N;
+for(let i=0;i<N;i++)for(let j=0;j<N;j++){
+  if(ins(i,j)&&ins(i+1,j)&&ins(i,j+1))idx.push(id(i,j),id(i+1,j),id(i,j+1));
+  if(ins(i+1,j)&&ins(i+1,j+1)&&ins(i,j+1))idx.push(id(i+1,j),id(i+1,j+1),id(i,j+1));}
+const sgeo=new THREE.BufferGeometry();
+sgeo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+sgeo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
+sgeo.setIndex(idx);sgeo.computeVertexNormals();
+scene.add(new THREE.Mesh(sgeo,new THREE.MeshStandardMaterial(
+  {vertexColors:true,roughness:.62,metalness:.03,side:THREE.DoubleSide})));
+// tangent plane — a LOCAL patch touching the surface at ρk (fades in, phase ②)
+const rp=0.95;   // large supporting plane — extends well past the simplex (frame clips it)
+const pcn=[[rk[0]-rp,rk[1]-rp],[rk[0]+rp,rk[1]-rp],[rk[0]+rp,rk[1]+rp],[rk[0]-rp,rk[1]+rp]];
+const tgPos=[];pcn.forEach(([a,b])=>{const q=xz(a,b,1-a-b);tgPos.push(q.x,plane(a,b)*HS,q.y);});
+const tgeo=new THREE.BufferGeometry();
+tgeo.setAttribute('position',new THREE.Float32BufferAttribute(tgPos,3));tgeo.setIndex([0,1,2,0,2,3]);tgeo.computeVertexNormals();
+const planeMat=new THREE.MeshStandardMaterial({color:0xcaa64e,transparent:true,opacity:0,
+  side:THREE.DoubleSide,roughness:.9,depthWrite:false});
+scene.add(new THREE.Mesh(tgeo,planeMat));
+// base triangle + material corners
+const base=[...P,P[0]].map(p=>new THREE.Vector3(p.x,0.001,p.y));
+scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(base),new THREE.LineBasicMaterial({color:INK})));
+const mcol=[GREEN,BLUE,RED],mname=['M₁','M₂','M₃'];
+P.forEach((p,i)=>{const b=new THREE.Mesh(new THREE.SphereGeometry(0.055,20,20),
+  new THREE.MeshStandardMaterial({color:mcol[i],roughness:.4}));b.position.set(p.x,0,p.y);scene.add(b);
+  const l=label3(mname[i],mcol[i],0.26);l.position.set(p.x*1.05,0.14,p.y*1.05);scene.add(l);});
+// reference marker ρk + label (phase ①)
+const qk=xz(rk[0],rk[1],rk[2]), yk=Rm(rk[0],rk[1],rk[2])*HS;
+const kBall=new THREE.Mesh(new THREE.SphereGeometry(0.06,24,24),new THREE.MeshStandardMaterial({color:INK,roughness:.35}));
+kBall.position.set(qk.x,yk,qk.y);scene.add(kBall);
+const kLab=label3('ρᵏ',INK,0.26);kLab.position.set(qk.x,yk+0.22,qk.y);scene.add(kLab);
+// query point + gap (phase ③)
+function segCyl(r,colorHex){const geo=new THREE.CylinderGeometry(r,r,1,16);
+  const m=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:colorHex,roughness:.4}));
+  return {mesh:m,set(a,b){const d=new THREE.Vector3().subVectors(b,a),l=Math.max(d.length(),1e-4);
+    m.position.copy(a).add(b).multiplyScalar(.5);m.scale.set(1,l,1);
+    m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.clone().normalize());}};}
+const gap3=segCyl(0.042,RED);scene.add(gap3.mesh);
+const xBall=new THREE.Mesh(new THREE.SphereGeometry(0.05,20,20),new THREE.MeshStandardMaterial({color:RED,roughness:.35}));scene.add(xBall);
+const tgt=[0.16,0.66,0.18];
+
+function drawB(A){
+  kBall.scale.setScalar(0.25+0.75*A.refO);
+  kLab.material.opacity=A.refO;
+  planeMat.opacity=0.34*A.tanE;
+  const show=A.qO>0.02;
+  gap3.mesh.visible=show;xBall.visible=show;
+  if(show){
+    const a=lerp(rk[0],tgt[0],A.qU),b=lerp(rk[1],tgt[1],A.qU),c=1-a-b;const q=xz(a,b,c);
+    const yS=Rm(a,b,c)*HS, yP=plane(a,b)*HS;
+    gap3.set(new THREE.Vector3(q.x,yP,q.y),new THREE.Vector3(q.x,yS,q.y));
+    xBall.position.set(q.x,yS,q.y);
+    xBall.material.opacity=A.qO;gap3.mesh.material.opacity=A.qO;
+  }
+  controls.update();
+}
+function resizeB(){const w=canvas.clientWidth,h=canvas.clientHeight;if(!w||!h)return false;
+  renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();return true;}
+
+/* ══════════════ run ══════════════ */
+let t0=null,lw=0,lh=0,lsw=0,lsh=0;
+const svgStage=svg.parentElement;
+function loop(ts){if(t0===null)t0=ts;const t=(ts-t0)/1000;const A=anim(t);
+  setBanner(A.idx);
+  const sw=svgStage.clientWidth,sh=svgStage.clientHeight;
+  if(sw&&sh&&(sw!==lsw||sh!==lsh)){lsw=sw;lsh=sh;layoutA();}
+  drawA(A);
+  const w=canvas.clientWidth,h=canvas.clientHeight;
+  if(w&&h){if(w!==lw||h!==lh){lw=w;lh=h;resizeB();}drawB(A);renderer.render(scene,cam);}
+  requestAnimationFrame(loop);}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
