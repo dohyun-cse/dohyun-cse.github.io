@@ -10,7 +10,17 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="stylesheet" href="assets/css/main.css" />
-	</head>
+	        <style>
+            .box.pub { display: flex; align-items: center; gap: 1.5em; }
+            .box.pub .pub-fig { flex: 0 0 30%; max-width: 260px; }
+            .box.pub .pub-fig img { display: block; width: 100%; max-height: 180px; object-fit: contain; }
+            .box.pub .pub-text { flex: 1; min-width: 0; }
+            @media screen and (max-width: 736px) {
+                .box.pub { flex-direction: column; align-items: stretch; }
+                .box.pub .pub-fig { max-width: none; }
+            }
+        </style>
+    </head>
 	<body class="subpage">
         
         <!-- Header -->
@@ -82,114 +92,144 @@
                         <p>See also <a href="https://scholar.google.com/citations?user=DLUqcRoAAAAJ" target="_blank" rel="noopener noreferrer">Google Scholar</a></p>
                     </header>
                     <h2 style="margin:0 0 1em 0" id="submitted">Preprints</h2>
-                    <div class="box">
+                    <div class="box pub">
+                        <div class="pub-fig"><img src="images/pubs/remap.png" alt="" loading="lazy" /></div>
+                        <div class="pub-text">
                         <h3 style="margin:0 0 0 0">Remap for ALE hydrodynamics via direct interpolation and constraint optimization</h3>
                         <i>Brendan Keith, <b>Dohyun Kim</b>, Boyan S. Lazarov, Ketan Mittal, Cosmin Petra, M. R. Schmidt, Vladimir Z. Tomov</i><br>
-                        Submitted, 2026.
+                        Submitted, 2026.</div>
                     </div>
-                    <div class="box">
+                    <div class="box pub">
+                        <div class="pub-fig"><img src="images/pubs/mmto-simpl.png" alt="" loading="lazy" /></div>
+                        <div class="pub-text">
                         <h3 style="margin:0 0 0 0"><a href="https://arxiv.org/abs/2605.11994" target="_blank" rel="noopener noreferrer">
                             The SiMPL method for multi-material topology optimization
                         </a></h3>
                         <i>Peter Gangl, Brendan Keith, <b>Dohyun Kim</b>, Thomas M. Surowiec</i><br>
-                        arXiv:2605.11994, revision submitted, 2026.
+                        arXiv:2605.11994, revision submitted, 2026.</div>
                     </div>
-                    <div class="box">
+                    <div class="box pub">
+                        <div class="pub-fig"><img src="images/pubs/pdg.png" alt="" loading="lazy" /></div>
+                        <div class="pub-text">
                         <h3 style="margin:0 0 0 0"><a href="https://arxiv.org/abs/2604.19708" target="_blank" rel="noopener noreferrer">
                             Proximal discontinuous Galerkin methods for variational inequalities
                         </a></h3>
                         <i>Alexandre Ern, Brendan Keith, <b>Dohyun Kim</b>, Rami Masri, Béatrice Rivière</i><br>
-                        arXiv:2604.19708, submitted, 2026.
+                        arXiv:2604.19708, submitted, 2026.</div>
                     </div>
-                    <div class="box">
+                    <div class="box pub">
+                        <div class="pub-fig"><img src="images/pubs/nonsymm-pg.png" alt="" loading="lazy" /></div>
+                        <div class="pub-text">
                         <h3 style="margin:0 0 0 0"><a href="https://arxiv.org/abs/2602.14967" target="_blank" rel="noopener noreferrer">
                             The proximal Galerkin method for non-symmetric variational inequalities
                         </a></h3>
                         <i>Guosheng Fu, Brendan Keith, <b>Dohyun Kim</b>, Rami Masri, Will Pazner</i><br>
-                        arXiv:2602.14967, 2026.
+                        arXiv:2602.14967, 2026.</div>
                     </div>
                     <h2 style="margin:0 0 1em 0" id="published">Journal Articles</h2>
                     <p style="margin:0 0 0.5em 0">2026</p>
-                    <div class="box">
+                    <div class="box pub">
+                        <div class="pub-fig"><img src="images/pubs/sdg-navier-stokes.png" alt="" loading="lazy" /></div>
+                        <div class="pub-text">
                         <h3 style="margin:0 0 0 0"><a href="https://arxiv.org/abs/2107.09226" target="_blank" rel="noopener noreferrer">
                             Pressure-robust staggered DG methods for the Navier&ndash;Stokes equations on general meshes
                         </a></h3>
                         <i><b>Dohyun Kim</b>, Lina Zhao, Eric T. Chung, Eun-Jae Park</i><br>
-                        J. Sci. Comput. 109 (2026), 45.
+                        J. Sci. Comput. 109 (2026), 45.</div>
                     </div>
                     <p style="margin:0 0 0.5em 0">2025</p>
-                    <div class="box">
+                    <div class="box pub">
+                        <div class="pub-fig"><img src="images/pubs/qge-nonstationary.png" alt="" loading="lazy" /></div>
+                        <div class="pub-text">
                         <h3 style="margin:0 0 0 0"><a href="https://doi.org/10.1051/m2an/2025040" target="_blank" rel="noopener noreferrer">
                             Finite element approximation to the non-stationary quasi-geostrophic equation
                         </a></h3>
                         <i><b>Dohyun Kim</b>, Amiya K. Pani, Eun-Jae Park</i><br>
-                        ESAIM Math. Model. Numer. Anal. 59 (2025), 1973&ndash;2003.
+                        ESAIM Math. Model. Numer. Anal. 59 (2025), 1973&ndash;2003.</div>
                     </div>
-                    <div class="box">
+                    <div class="box pub">
+                        <div class="pub-fig"><img src="images/pubs/simpl-analysis.png" alt="" loading="lazy" /></div>
+                        <div class="pub-text">
                         <h3 style="margin:0 0 0 0"><a href="https://arxiv.org/abs/2409.19341" target="_blank" rel="noopener noreferrer">
                             Analysis of the SiMPL method for density-based topology optimization
                         </a></h3>
                         <i>Brendan Keith, <b>Dohyun Kim</b>, Boyan S. Lazarov, Thomas M. Surowiec</i><br>
-                        SIAM J. Optim. 35 (2025), 1134&ndash;1164.
+                        SIAM J. Optim. 35 (2025), 1134&ndash;1164.</div>
                     </div>
-                    <div class="box">
+                    <div class="box pub">
+                        <div class="pub-fig"><img src="images/pubs/simpl-intro.png" alt="" loading="lazy" /></div>
+                        <div class="pub-text">
                         <h3 style="margin:0 0 0 0"><a href="https://arxiv.org/abs/2411.19421" target="_blank" rel="noopener noreferrer">
                             A simple introduction to the SiMPL method for density-based topology optimization
                         </a></h3>
                         <i><b>Dohyun Kim</b>, Boyan S. Lazarov, Thomas M. Surowiec, Brendan Keith</i><br>
-                        Struct. Multidiscip. Optim. 68 (2025).
+                        Struct. Multidiscip. Optim. 68 (2025).</div>
                     </div>
                     <p style="margin:0 0 0.5em 0">2024</p>
-                    <div class="box">
+                    <div class="box pub">
+                        <div class="pub-fig"><img src="images/pubs/mfem.png" alt="" loading="lazy" /></div>
+                        <div class="pub-text">
                         <h3 style="margin:0 0 0 0"><a href="https://doi.org/10.1177/10943420241261981" target="_blank" rel="noopener noreferrer">
                             High-performance finite elements with MFEM
                         </a></h3>
                         <i>J. Andrej, N. Atallah, J.-P. Bäcker, J.-S. Camier, D. Copeland, V. Dobrev, Y. Dudouit, T. Duswald, B. Keith, <b>Dohyun Kim</b>, T. Kolev, B. Lazarov, K. Mittal, W. Pazner, S. Petrides, S. Shiraiwa, M. Stowell, V. Tomov</i><br>
-                        Int. J. High Perform. Comput. Appl. 38 (2024), 447&ndash;467.
+                        Int. J. High Perform. Comput. Appl. 38 (2024), 447&ndash;467.</div>
                     </div>
-                    <div class="box">
+                    <div class="box pub">
+                        <div class="pub-fig"><img src="images/pubs/dynamo.jpg" alt="" loading="lazy" /></div>
+                        <div class="pub-text">
                         <h3 style="margin:0 0 0 0"><a href="https://arxiv.org/abs/2310.01695" target="_blank" rel="noopener noreferrer">
                             DynAMO: Multi-agent reinforcement learning for dynamic anticipatory mesh optimization with applications to hyperbolic conservation laws
                         </a></h3>
                         <i>Tarik Dzanic, Ketan Mittal, <b>Dohyun Kim</b>, Jiachen Yang, Socratis Petrides, Brendan Keith, Robert Anderson</i><br>
-                        J. Comput. Phys. 506 (2024), 112924.
+                        J. Comput. Phys. 506 (2024), 112924.</div>
                     </div>
                     <p style="margin:0 0 0.5em 0">2022</p>
-                    <div class="box">
+                    <div class="box pub">
+                        <div class="pub-fig"><img src="images/pubs/sdg-darcy-fracture.png" alt="" loading="lazy" /></div>
+                        <div class="pub-text">
                         <h3 style="margin:0 0 0 0"><a href="https://doi.org/10.1007/s10915-022-01760-8" target="_blank" rel="noopener noreferrer">
                             Staggered DG method with small edges for Darcy flows in fractured porous media
                         </a></h3>
                         <i>Lina Zhao, <b>Dohyun Kim</b>, Eun-Jae Park, Eric T. Chung</i><br>
-                        J. Sci. Comput. 90 (2022), 83.
+                        J. Sci. Comput. 90 (2022), 83.</div>
                     </div>
                     <p style="margin:0 0 0.5em 0">2021</p>
-                    <div class="box">
+                    <div class="box pub">
+                        <div class="pub-fig"><img src="images/pubs/morley-qge.png" alt="" loading="lazy" /></div>
+                        <div class="pub-text">
                         <h3 style="margin:0 0 0 0"><a href="https://doi.org/10.1016/j.cma.2020.113639" target="_blank" rel="noopener noreferrer">
                             Morley finite element methods for the stationary quasi-geostrophic equation
                         </a></h3>
                         <i><b>Dohyun Kim</b>, Amiya K. Pani, Eun-Jae Park</i><br>
-                        Comput. Methods Appl. Mech. Engrg. 375 (2021), 113639.
+                        Comput. Methods Appl. Mech. Engrg. 375 (2021), 113639.</div>
                     </div>
-                    <div class="box">
+                    <div class="box pub">
+                        <div class="pub-fig"><img src="images/pubs/sdg-review.png" alt="" loading="lazy" /></div>
+                        <div class="pub-text">
                         <h3 style="margin:0 0 0 0">Review and implementation of staggered DG methods on polygonal meshes</h3>
                         <i><b>Dohyun Kim</b>, Lina Zhao, Eun-Jae Park</i><br>
-                        J. Korean Soc. Ind. Appl. Math. 25(3) (2021).
+                        J. Korean Soc. Ind. Appl. Math. 25(3) (2021).</div>
                     </div>
                     <p style="margin:0 0 0.5em 0">2020</p>
-                    <div class="box">
+                    <div class="box pub">
+                        <div class="pub-fig"><img src="images/pubs/sdg-stokes.png" alt="" loading="lazy" /></div>
+                        <div class="pub-text">
                         <h3 style="margin:0 0 0 0"><a href="https://doi.org/10.1137/20M1322170" target="_blank" rel="noopener noreferrer">
                             Staggered DG methods for the pseudostress-velocity formulation of the Stokes equations on general meshes
                         </a></h3>
                         <i><b>Dohyun Kim</b>, Lina Zhao, Eun-Jae Park</i><br>
-                        SIAM J. Sci. Comput. 42 (2020), A2537&ndash;A2560.
+                        SIAM J. Sci. Comput. 42 (2020), A2537&ndash;A2560.</div>
                     </div>
                     <p style="margin:0 0 0.5em 0">2018</p>
-                    <div class="box">
+                    <div class="box pub">
+                        <div class="pub-fig"><img src="images/pubs/bspline-qge.png" alt="" loading="lazy" /></div>
+                        <div class="pub-text">
                         <h3 style="margin:0 0 0 0"><a href="https://doi.org/10.1016/j.cma.2018.02.009" target="_blank" rel="noopener noreferrer">
                             Error estimates of B-spline based finite-element methods for the stationary quasi-geostrophic equations of the ocean
                         </a></h3>
                         <i><b>Dohyun Kim</b>, Tae-Yeon Kim, Eun-Jae Park, Dong-wook Shin</i><br>
-                        Comput. Methods Appl. Mech. Engrg. 335 (2018), 255&ndash;272.
+                        Comput. Methods Appl. Mech. Engrg. 335 (2018), 255&ndash;272.</div>
                     </div>
                 </div>
             </section>
